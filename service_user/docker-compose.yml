@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  service_user:
+    image: service_user
+    ports:
+      - "8888:8888"
+    environment:
+      - DOCUMENTDB_DATABASE_URI=mongodb+srv://ticketoverflow:OW41ZGgFa8ixZj2p@ticketoverflow.zdgf5aw.mongodb.net/?retryWrites=true&w=majority

@@ -3,12 +3,11 @@ from flask import Flask
 from pymongo import MongoClient
 from views.routers import users_blueprint
 
-def create_app(config_overrides=None):
+def create_app():
     app = Flask(__name__)
 
     app.config['DOCUMENTDB_DATABASE_URI'] = environ.get("DOCUMENTDB_DATABASE_URI")
-    if config_overrides:
-        app.config.update(config_overrides)
+
 
     # Create MongoDB client
     client = MongoClient(app.config['DOCUMENTDB_DATABASE_URI'])
@@ -19,7 +18,15 @@ def create_app(config_overrides=None):
 
     return app
 
-app = create_app()
+
+
+def wsgi_app(environ, start_response):
+    app = create_app()
+    return app(environ, start_response)
+
+
+
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
