@@ -28,12 +28,11 @@ def create_app():
     return app
 
 
-# def wsgi_app(environ, start_response):
-#     app = create_app()
-#     return app(environ, start_response)
+def wsgi_app(environ, start_response):
+    app = create_app()
+    return app(environ, start_response)
 
 if __name__ == '__main__':
-#    app = create_app()
     app = create_app()
     app.logger.setLevel(logging.DEBUG)
 

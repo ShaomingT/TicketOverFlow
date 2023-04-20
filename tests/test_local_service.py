@@ -32,7 +32,7 @@ def test_get_user():
 
 
 ######## TEST FOR SERVICE TICKETS ########
-LOCAL_API_URL['ticket'] = "http://127.0.0.1:5000/api/v1/tickets"
+# LOCAL_API_URL['ticket'] = "http://127.0.0.1:5000/api/v1/tickets"
 
 def test_get_all_tickets():
     headers = {'Accept': 'application/json'}

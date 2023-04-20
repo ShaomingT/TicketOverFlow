@@ -6,6 +6,7 @@ import psutil
 import os, threading, json
 import subprocess
 from threading import Thread
+import logging
 
 
 tickets_blueprint = Blueprint("tickets", __name__)
@@ -165,7 +166,7 @@ def generate_ticket(ticket_id, app):
             json.dump(ticket_input, f)
         output_file = f"./temp/{ticket_id}_output"
         print("output_file: ", output_file)
-        cmd = f"./hamilton/hamilton-v1.1.0-darwin-arm64 generate ticket --input {input_file} --output {output_file}"
+        cmd = f"./hamilton/hamilton-v1.1.0-linux-arm64 generate ticket --input {input_file} --output {output_file}"
         try:
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
             with open(f"{output_file}.svg", "r") as f:
@@ -174,31 +175,33 @@ def generate_ticket(ticket_id, app):
             os.remove(input_file)
             os.remove(output_file + ".svg")
         except subprocess.CalledProcessError as e:
+            logging.error(e.output)
             app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR"}})
 
 
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>/print", methods=["POST"])
 def print_ticket(ticket_id):
-    try:
-        ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
-        if not ticket_data:
-            return jsonify({"error": "The ticket does not exist."}), 404
-        
-        if ticket_data["print_status"] == "PENDING":
-            return jsonify({"error": "still processing"}), 500
-        elif ticket_data["print_status"] == "PRINTED":
-            return jsonify({"error": "already printed"}), 500
+    # try:
+    ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
+    if not ticket_data:
+        return jsonify({"error": "The ticket does not exist."}), 404
+    
+    if ticket_data["print_status"] == "PENDING":
+        return jsonify({"error": "still processing"}), 500
+    elif ticket_data["print_status"] == "PRINTED":
+        return jsonify({"error": "already printed"}), 500
 
-        current_app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "PENDING"}})
+    current_app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "PENDING"}})
 
 
-        app = current_app._get_current_object()
-        Thread(target=generate_ticket, args=(ticket_id, app)).start()
+    app = current_app._get_current_object()
+    Thread(target=generate_ticket, args=(ticket_id, app)).start()
 
-        return jsonify({"status": "The asynchronous request was successfully started."}), 202
-    except Exception as e:
-        return jsonify({"error": f"An unknown error occurred: {e}"}), 500
+    return jsonify({"status": "The asynchronous request was successfully started."}), 202
+    # except Exception as e:
+    #     print(e)
+    #     return jsonify({"error": f"An unknown error occurred: {e}"}), 500
 
 
 
