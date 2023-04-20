@@ -47,5 +47,6 @@ if __name__ == '__main__':
     app.db_users = client.ticketoverflow.users
     app.db_tickets = client.ticketoverflow.tickets
     app.db_concerts = client.ticketoverflow.concerts
-
+    
+    app.app_context().push()
     app.run(debug=True)

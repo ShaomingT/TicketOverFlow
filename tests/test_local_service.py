@@ -2,6 +2,7 @@ from settings import LOCAL_API_URL
 from unittest.mock import patch
 import json
 import requests
+import time
 
 ######## TEST FOR SERVICE USERS ########
 
@@ -206,20 +207,33 @@ def test_ticket_health_200():
 
 def test_print_ticket_1():
     # valid ticket id and un-printed
-    pass
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    ticket_id = "4f0ba636-0d70-47a8-bd3e-b3288c60e407"
+    data = {}
+    response = requests.post(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers, data=json.dumps(data))
+    assert response.status_code == 202
+    response = requests.post(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers, data=json.dumps(data))
+    assert response.status_code == 500
+    response = requests.get(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers)
+    assert response.status_code == 404
+    time.sleep(5)
+    response = requests.get(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers)
+    assert response.status_code == 200
 
 def test_print_ticket_2():
-    # valid ticket id, pending
-    pass
+    # not valid ticket_id (post)
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    ticket_id = "99999636-0d70-47a8-bd3e-b3288c60e407"
+    data = {}
+    response = requests.post(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers, data=json.dumps(data))
+    assert response.status_code == 404
+
 
 def test_print_ticket_3():
-    # valid ticket id, error
-    pass
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    ticket_id = "99999636-0d70-47a8-bd3e-b3288c60e407"
+    data = {}
+    response = requests.get(LOCAL_API_URL['ticket'] + f"/{ticket_id}/print", headers=headers, data=json.dumps(data))
+    assert response.status_code == 404
 
-def test_print_ticket_4():
-    # valid ticket id, printed
-    pass
 
-def test_print_ticket_5():
-    # not valid ticket
-    pass
