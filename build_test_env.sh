@@ -16,6 +16,7 @@ cd ../..
 
 echo "start service_user services..."
 cd ./service_user
+docker build -t service_user .
 docker-compose build
 docker-compose up -d
 cd ..
