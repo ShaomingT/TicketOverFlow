@@ -1,14 +1,8 @@
 class Ticket:
-    def __init__(self, id, concert_id, concert_url, user_id, user_url, print_status):
+    def __init__(self, id, concert, user, print_status):
         self.id = id
-        self.concert = {
-            "id": concert_id,
-            "url": concert_url,
-        }
-        self.user = {
-            "id": user_id,
-            "url": user_url
-        }
+        self.concert =concert
+        self.user = user
         self.print_status = print_status
 
     def to_dict(self):

@@ -37,3 +37,10 @@ http://localhost:8888/api/v1/users
 
 ## connect running container service_user to my-net
 docker network connect my-net [containerid]
+
+
+
+tickets:
+if no paras are given, return all ticket list
+if given user_id or concert_id paras. return list of matched
+only accept two para, user_id and concert_id. if other para is provided, such as "price". return 404

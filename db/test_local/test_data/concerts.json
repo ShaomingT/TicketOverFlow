@@ -76,7 +76,7 @@
         "name": "Concert 9",
         "venue": "Venue 9",
         "date": "2023-12-28",
-        "capacity": 266,
+        "capacity": 10,
         "status": "ACTIVE"
     }
 ]
