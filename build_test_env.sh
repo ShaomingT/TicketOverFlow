@@ -20,3 +20,20 @@ docker build -t service_user .
 docker-compose build
 docker-compose up -d
 cd ..
+
+echo "start service_ticket services..."
+cd ./service_ticket
+docker build -t service_ticket .
+docker-compose build
+docker-compose up -d
+cd ..
+
+echo "start service_concert services..."
+cd ./service_concert
+docker build -t service_concert .
+docker-compose build
+docker-compose up -d
+cd ..
+
+
+echo "Done"

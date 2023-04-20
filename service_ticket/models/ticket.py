@@ -1,20 +1,21 @@
 class Ticket:
-    def __init__(self, id, user_id, title, description, status="open"):
+    def __init__(self, id, concert_id, concert_url, user_id, user_url, print_status):
         self.id = id
-        self.user_id = user_id
-        self.title = title
-        self.description = description
-        self.status = status
-        self.user = None
+        self.concert = {
+            "id": concert_id,
+            "url": concert_url,
+        }
+        self.user = {
+            "id": user_id,
+            "url": user_url
+        }
+        self.print_status = print_status
 
     def to_dict(self):
         result = {
             "id": self.id,
-            "user_id": self.user_id,
-            "title": self.title,
-            "description": self.description,
-            "status": self.status,
+            "concert": self.concert,
+            "user": self.user,
+            "print_status": self.print_status
         }
-        if self.user:
-            result["user"] = self.user
         return result

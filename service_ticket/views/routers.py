@@ -7,6 +7,12 @@ tickets_blueprint = Blueprint("tickets", __name__)
 USER_SERVICE_URL = "http://localhost:8888/api/v1/users"
 CONCERT_SERVICE_URL = "http://localhost:7777/api/v1/concerts"
 
+
+@tickets_blueprint.route("/tickets/test", methods=["GET"])
+def test():
+    return "Tickets service is up and running!", 200
+
+
 @tickets_blueprint.route("/tickets/health", methods=["GET"])
 def health_check():
     try:
