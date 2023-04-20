@@ -29,6 +29,10 @@ def health_check():
         # If there's an error, return a 503 status code indicating the service is not healthy
         current_app.logger.error(f"Health check failed: {e}")
         return jsonify({"error": "Service is not healthy."}), 503
+    else:
+        # If the service is not healthy, return a 500 status code
+        return jsonify({"error": "Service is not healthy."}), 500
+
 
 @users_blueprint.route("/users", methods=["GET"])
 def get_all_users():

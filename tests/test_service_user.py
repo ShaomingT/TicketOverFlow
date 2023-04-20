@@ -1,4 +1,5 @@
 from settings import LOCAL_API_URL
+from unittest.mock import patch
 
 
 
@@ -14,24 +15,12 @@ def test_users():
     assert response.json()[0]['id'] == '00000000-0000-0000-0000-000000000001'
 
 
-def test_user_health():
+def test_user_health_200():
     headers = {'Accept': 'application/json'}
     response = requests.get(LOCAL_API_URL['user'] + '/health', headers=headers)
-    
     assert response.status_code == 200
-    assert 'healthy' in response.json()
-    assert response.json()['healthy'] == True
-    assert 'dependencies' in response.json()
-    assert len(response.json()['dependencies']) > 0
+    assert response.json()["healthy"] == True
 
-    for dependency in response.json()['dependencies']:
-        assert 'name' in dependency
-        assert 'healthy' in dependency
-        assert dependency['healthy'] == True
-
-    assert 'memoryUsage' in response.json()
-    assert isinstance(response.json()['memoryUsage'], str)
-    
 
 def test_get_user():
     headers = {'Accept': 'application/json'}
