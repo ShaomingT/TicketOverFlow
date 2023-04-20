@@ -5,4 +5,9 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - DOCUMENTDB_DATABASE_URI=mongodb+srv://ticketoverflow:OW41ZGgFa8ixZj2p@ticketoverflow.zdgf5aw.mongodb.net/?retryWrites=true&w=majority
+      - DOCUMENTDB_DATABASE_URI=mongodb://root:example@test_local_mongo_1:27017/
+
+networks:
+  default:
+    name: ticketoverflow
+    external: true
