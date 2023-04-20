@@ -125,3 +125,15 @@ def create_ticket():
     return jsonify(ticket_response), 200
 
 
+
+@tickets_blueprint.route("/tickets/<string:ticket_id>", methods=["GET"])
+def get_ticket_by_id(ticket_id):
+    if ticket_id == "health":
+        return health_check()
+    ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
+    if ticket_data:
+        ticket = Ticket(**ticket_data)
+        return jsonify(ticket.to_dict()), 200
+    else:
+        return jsonify({"error": "The ticket does not exist."}), 404
+
