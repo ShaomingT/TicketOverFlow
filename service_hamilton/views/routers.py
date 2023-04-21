@@ -11,7 +11,6 @@ import logging
 
 hamilton_blueprint = Blueprint("hamilton", __name__)
 
-
 @hamilton_blueprint.route("/hamilton/test", methods=["GET"])
 def test():
     return "Hamilton service is up and running!", 200
@@ -21,6 +20,7 @@ def test():
 def generate_ticket(ticket_input, app):
     try:
         with app.app_context():
+            hamilton_path = app.config["HAMILTON_PATH"]
             ticket_id = ticket_input["id"]
             input_file = f"./temp/{ticket_id}_input.json"
             print("input_file: ", input_file)
@@ -28,7 +28,7 @@ def generate_ticket(ticket_input, app):
                 json.dump(ticket_input, f)
             output_file = f"./temp/{ticket_id}_output"
             print("output_file: ", output_file)
-            cmd = f"./bin/hamilton-v1.1.0-darwin-arm64 generate ticket --input {input_file} --output {output_file}"
+            cmd = f"{hamilton_path} generate ticket --input {input_file} --output {output_file}"
             try:
                 subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 with open(f"{output_file}.svg", "r") as f:
@@ -79,6 +79,7 @@ def print_ticket(ticket_id):
 def generate_concert(concert_input, app):
     try:
         with app.app_context():
+            hamilton_path = app.config["HAMILTON_PATH"]
             concert_id = concert_input["id"]
             logging.debug(msg=f"concert_id: {concert_id}")
             logging.debug(msg=f"concert_input: {concert_input}")
@@ -86,7 +87,7 @@ def generate_concert(concert_input, app):
             with open(input_file, "w") as f:
                 json.dump(concert_input, f)
             output_file = f"./temp/{concert_id}_output"
-            cmd = f"./bin/hamilton-v1.1.0-darwin-arm64 generate ticket --input {input_file} --output {output_file}"
+            cmd = f"{hamilton_path} generate ticket --input {input_file} --output {output_file}"
             try:
                 subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 with open(f"{output_file}.svg", "r") as f:
