@@ -21,19 +21,19 @@ with open("test_data/users.json", "r") as f:
 db["users"].insert_many(user_data)
 
 # Open the ticket data file and insert the data into the "tickets" collection
-with open("test_data/tickets.json", "r") as f:
-    ticket_data = json.load(f)
-db["tickets"].insert_many(ticket_data)
+# with open("test_data/tickets.json", "r") as f:
+#     ticket_data = json.load(f)
+# db["tickets"].insert_many(ticket_data)
 
-# Open the concert data file and insert the data into the "concerts" collection
-with open("test_data/concerts.json", "r") as f:
-    concert_data = json.load(f)
-db["concerts"].insert_many(concert_data)
+# # Open the concert data file and insert the data into the "concerts" collection
+# with open("test_data/concerts.json", "r") as f:
+#     concert_data = json.load(f)
+# db["concerts"].insert_many(concert_data)
 
 
 # Print the result
 # Print the number of documents inserted into the 'users' collection
 print(f"Inserted {len(user_data)} documents into the 'users' collection.")
-print(f"Inserted {len(ticket_data)} documents into the 'tickets' collection.")
-print(f"Inserted {len(concert_data)} documents into the 'concerts' collection.")
+# print(f"Inserted {len(ticket_data)} documents into the 'tickets' collection.")
+# print(f"Inserted {len(concert_data)} documents into the 'concerts' collection.")
 print("done.")
