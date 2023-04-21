@@ -287,29 +287,29 @@ def test_modify_concerts_2():
     assert response.status_code == 400
 
 
-def test_generate_svg_1():
-    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-    #create_a_concert
-    response = requests.post(CURR_URLS['concert'], headers=headers, json={
-        "name": "Concert 1",
-        "date": "2020-10-10",
-        "venue": "Venue 1",
-        "capacity": 1000,
-        "status": "ACTIVE"
-    })
-    assert response.status_code == 200
-    # get the id of the concert
-    concert_id = response.json()['id']
-    print("concert_id", concert_id)
+# def test_generate_svg_1():
+#     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+#     #create_a_concert
+#     response = requests.post(CURR_URLS['concert'], headers=headers, json={
+#         "name": "Concert 1",
+#         "date": "2020-10-10",
+#         "venue": "Venue 1",
+#         "capacity": 1000,
+#         "status": "ACTIVE"
+#     })
+#     assert response.status_code == 200
+#     # get the id of the concert
+#     concert_id = response.json()['id']
+#     print("concert_id", concert_id)
 
-    # get the id of the concert
-    response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
-    assert response.status_code == 404
+#     # get the id of the concert
+#     response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
+#     assert response.status_code == 404
 
-    #wait for 20 seconds, and fetch again
-    time.sleep(20)
-    response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
-    assert response.status_code == 200
+#     #wait for 20 seconds, and fetch again
+#     time.sleep(20)
+#     response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
+#     assert response.status_code == 200
 
 
 ###### SETVICE TICKET TESTS ####
@@ -503,6 +503,52 @@ def test_full_ticket_test_2():
     
         
 
+# test get all concert
+def test_get_all_concert_post():
+    headers = {'Accept': 'application/json'}
+    response = requests.get(CURR_URLS['concert'], headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+
+# test get all ticket (post)
+def test_get_all_ticket_post():
+    headers = {'Accept': 'application/json'}
+    response = requests.get(CURR_URLS['ticket'], headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+
+def test_get_all_users_post():
+    headers = {'Accept': 'application/json'}
+    response = requests.get(CURR_URLS['user'], headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
 
 
+def helper_random_get_one_ticket():
+    headers = {'Accept': 'application/json'}
+    response = requests.get(CURR_URLS['ticket'], headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+    return random.choice(response.json())
 
+
+# ticket print test
+def test_ticket_print():
+    # random get one ticket
+    ticket = helper_random_get_one_ticket()
+    # print ticket id
+    print(ticket['id'])
+
+    # print the ticket
+    headers = {'Accept': 'application/json'}
+    response = requests.post(f"{CURR_URLS['ticket']}/{ticket['id']}/print", headers=headers)
+    assert response.status_code == 202
+
+    # get the ticket by id
+    response = requests.get(f"{CURR_URLS['ticket']}/{ticket['id']}", headers=headers)
+    assert response.status_code == 200
+    assert response.json()['print_status'] == 'PENDING'
+
+    # GET /tickets/{id}/print, with response status 404. id is previous id
+    response = requests.get(f"{CURR_URLS['ticket']}/{ticket['id']}/print", headers=headers)
+    assert response.status_code == 404

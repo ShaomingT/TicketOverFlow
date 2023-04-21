@@ -39,7 +39,7 @@ def health_check():
 @concerts_blueprint.route("/concerts", methods=["GET"])
 def get_all_concerts():
     # get all concerts
-    concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "svg": 0, "print_status":0})
+    concerts_data = current_app.db_concerts.find({}, projection={"_id":0, "id": 1, "name": 1, "venue": 1, "date": 1, "capacity": 1, "status": 1})
     concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
     return jsonify(concerts), 200
 
