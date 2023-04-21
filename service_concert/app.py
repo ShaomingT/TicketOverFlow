@@ -35,6 +35,7 @@ if __name__ == '__main__':
     app.config['SERVICE_USER_URL'] = environ.get("SERVICE_USER_URL")
     app.config['SERVICE_CONCERT_URL'] = "http://127.0.0.1:5000/api/v1/tickets"
     app.config['SERVICE_TICKET_URL'] = environ.get("SERVICE_TICKET_URL")
+    app.config['SERVICE_HAMILTON_URL'] = "http://127.0.0.1:6666/api/v1/hamilton"
 
     app.config['DOCUMENTDB_DATABASE_URI'] = "mongodb://root:example@localhost:27017/"
     client = MongoClient(app.config['DOCUMENTDB_DATABASE_URI'])

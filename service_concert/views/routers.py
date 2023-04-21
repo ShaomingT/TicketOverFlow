@@ -3,7 +3,7 @@ from models.concert import Concert
 import uuid
 import psutil, os
 import datetime
-
+import requests
 concerts_blueprint = Blueprint("concerts", __name__)
 
 
@@ -95,7 +95,6 @@ def create_concert():
         "status": data["status"],
     }
 
-    print(concert)
     try:
         # save to db
         current_app.db_concerts.insert_one(concert)
@@ -111,8 +110,21 @@ def create_concert():
         "capacity": concert["capacity"],
         "status": concert["status"],
     }
-
+    # request  to generate svg
+    request_hamilton(concert_id)
+    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    #todo: update to db
+    
     return jsonify(concert_response), 200
+
+def request_hamilton(concert_id):
+    try:
+        response = requests.post(
+            f"{current_app.config['SERVICE_HAMILTON_URL']}/concerts/{concert_id}", json={})
+    except Exception as e:
+        current_app.logger.error(f"{e}")
+        abort(500, description=f"An unknown error occurred: {e}")
+
 
 @concerts_blueprint.route("/concerts/<concert_id>", methods=["GET"])
 def get_concert_by_id(concert_id):
@@ -161,6 +173,12 @@ def update_concert(concert_id):
 
     updated_concert = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
     
+    # request  to generate svg
+    request_hamilton(concert_id)
+    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    #todo: update to to pending
+    
+
     return jsonify(updated_concert), 200
 
 
