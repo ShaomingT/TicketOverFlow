@@ -6,6 +6,7 @@ import os, threading, json
 import subprocess
 from threading import Thread
 import logging
+import traceback
 
 
 
@@ -22,11 +23,12 @@ def generate_ticket(ticket_input, app):
         with app.app_context():
             hamilton_path = app.config["HAMILTON_PATH"]
             ticket_id = ticket_input["id"]
-            input_file = f"./temp/{ticket_id}_input.json"
+            unique_id = uuid.uuid4()
+            input_file = f"./temp/{ticket_id}_{unique_id}_input.json"
             print("input_file: ", input_file)
             with open(input_file, "w") as f:
                 json.dump(ticket_input, f)
-            output_file = f"./temp/{ticket_id}_output"
+            output_file = f"./temp/{ticket_id}_{unique_id}_output"
             print("output_file: ", output_file)
             cmd = f"{hamilton_path} generate ticket --input {input_file} --output {output_file}"
             try:
@@ -41,7 +43,8 @@ def generate_ticket(ticket_input, app):
                 app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR"}})
     except Exception as e:
         logging.error(e)
-        app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR"}})
+        logging.error(traceback.format_exc())
+        app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR: " + str(e)}})
 
 
 
@@ -83,10 +86,11 @@ def generate_concert(concert_input, app):
             concert_id = concert_input["id"]
             logging.debug(msg=f"concert_id: {concert_id}")
             logging.debug(msg=f"concert_input: {concert_input}")
-            input_file = f"./temp/{concert_id}_input.json"
+            unique_id = uuid.uuid4()
+            input_file = f"./temp/{concert_id}_{unique_id}_input.json"
             with open(input_file, "w") as f:
                 json.dump(concert_input, f)
-            output_file = f"./temp/{concert_id}_output"
+            output_file = f"./temp/{concert_id}_{unique_id}_output"
             cmd = f"{hamilton_path} generate seating --input {input_file} --output {output_file}"
             print(cmd)
             logging.info("cmd: " + cmd)

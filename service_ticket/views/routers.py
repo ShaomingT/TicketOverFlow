@@ -45,15 +45,25 @@ def test():
 
 @tickets_blueprint.route("/tickets", methods=["GET"])
 def get_all_tickets():
-    # Get the query parameters
-    user_id = request.args.get("user_id")
-    concert_id = request.args.get("concert_id")
-
     # Check for unknown filter parameters
     allowed_params = {"user_id", "concert_id"}
     for param in request.args:
         if param not in allowed_params:
             return jsonify({"error": f"Unknown identifier provided as filter parameter"}), 404
+
+
+
+    # Get the query parameters
+    user_id = request.args.get("user_id")
+    concert_id = request.args.get("concert_id")
+    
+    # if no parameters are provided, return all tickets
+    if not user_id and not concert_id:
+        tickets_data = list(current_app.db_tickets.find({}, projection={"_id": 0, "svg":0}))
+        tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
+        return jsonify([ticket.to_dict() for ticket in tickets]), 200
+
+
 
     # Build the query based on the parameters
     query = {}
@@ -72,10 +82,23 @@ def get_all_tickets():
     return jsonify([ticket.to_dict() for ticket in tickets]), 200
 
 
+
+def request_hamilton_concert(concert_id):
+    try:
+        response = requests.post(
+            f"{current_app.config['SERVICE_HAMILTON_URL']}/concerts/{concert_id}", json={})
+    except Exception as e:
+        current_app.logger.error(f"{e}")
+        abort(500, description=f"An unknown error occurred: {e}")
+
+
+
 @tickets_blueprint.route("/tickets", methods=["POST"])
 def create_ticket():
     # Parse the request data
     data = request.get_json()
+    # define concert_id
+    concert_id = data["concert_id"]
 
     # Check if concert_id and user_id are provided
     if not all(key in data for key in ("concert_id", "user_id")):
@@ -91,7 +114,11 @@ def create_ticket():
 
     # Check if the concert is full
     num_tickets_sold = current_app.db_tickets.count_documents({"concert.id": data["concert_id"]})
-    if num_tickets_sold >= concert["capacity"]:
+
+
+    # if the number of tickets sold is equal to the maximum capacity of the concert, mark the concert status as SOLD_OUT
+    if num_tickets_sold  >= concert["capacity"]:
+        current_app.db_concerts.update_one({"id": concert["id"]}, {"$set": {"status": "SOLD_OUT"}})
         current_app.logger.info("concert is full")
         abort(400, description="concert is full")
 
@@ -108,6 +135,10 @@ def create_ticket():
     # Insert the ticket into the database
     try:
         current_app.db_tickets.insert_one(ticket)
+        #update the concert svg in the database
+        request_hamilton_concert(concert["id"])
+        # update the ocncert's print_status to "PENDING"
+        current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
@@ -117,11 +148,11 @@ def create_ticket():
         "id": ticket_id,
         "concert": {
             "id": concert["id"],
-            "url": f"{current_app.config['SERVICE_CONCERT_URL']}/{concert['_id']}"
+            "url": f"{current_app.config['SERVICE_CONCERT_URL']}/{concert['id']}"
         },
         "user": {
             "id": user["id"],
-            "url": f"{current_app.config['SERVICE_USER_URL']}/{user['_id']}"
+            "url": f"{current_app.config['SERVICE_USER_URL']}/{user['id']}"
         },
         "print_status": "NOT_PRINTED"
     }

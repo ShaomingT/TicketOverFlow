@@ -197,7 +197,7 @@ def update_concert(concert_id):
     # request  to generate svg
     request_hamilton(concert_id)
     current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
-    #todo: update to to pending
+
     
 
     return jsonify(updated_concert), 200

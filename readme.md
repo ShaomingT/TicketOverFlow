@@ -51,12 +51,16 @@ only accept two para, user_id and concert_id. if other para is provided, such as
 ## Cases
 ### Tickets:
 There can be more than one concert a day in one venue, even they have the same name. same data, and same capacity. In this assignment, there is only date, but no time. so we assume that in one day, mutiple same concert can be hold. (it is like in UQ, there are lecture, and lecture 2. All of them are same)
+return 400, with description, if concert is full
 
 
 
 ### concert, 
 
 404, if the concert pic does not exist or not printed yet
+
+## user
+ it can accept invalid para, such as price_id, but it doesn't work
 
 
 cases not considered. 
