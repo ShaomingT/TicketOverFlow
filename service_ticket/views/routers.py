@@ -141,44 +141,14 @@ def get_ticket_by_id(ticket_id):
         return jsonify({"error": "The ticket does not exist."}), 404
 
 ################################################################# 
-################################################################# 
 
-def generate_ticket(ticket_id, app):
-    with app.app_context():
-        ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
-        user_data = current_app.db_users.find_one({"id": ticket_data["user"]["id"]}, projection={"_id": 0})
-        concert_data = current_app.db_concerts.find_one({"id": ticket_data["concert"]["id"]}, projection={"_id": 0})
-        ticket_input = {
-            "id": ticket_data["id"],
-            "name": user_data["name"],
-            "email": user_data['email'],  
-            "concert": {
-                "id": concert_data["id"],
-                "name": concert_data["name"],  
-                "date": concert_data["date"],  
-                "venue": concert_data["venue"]  
-            }
-        }
-
-
-        input_file = f"./temp/{ticket_id}_input.json"
-        print("input_file: ", input_file)
-        with open(input_file, "w") as f:
-            json.dump(ticket_input, f)
-        output_file = f"./temp/{ticket_id}_output"
-        print("output_file: ", output_file)
-        cmd = f"./hamilton/hamilton-v1.1.0-linux-arm64 generate ticket --input {input_file} --output {output_file}"
-        try:
-            subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-            with open(f"{output_file}.svg", "r") as f:
-                svg_content = f.read()
-            app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "PRINTED", "svg": svg_content}})
-            os.remove(input_file)
-            os.remove(output_file + ".svg")
-        except subprocess.CalledProcessError as e:
-            logging.error(e.output)
-            app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR"}})
-
+def request_hamilton(ticket_id):
+    try:
+        response = requests.post(
+            f"{current_app.config['SERVICE_HAMILTON_URL']}/tickets/{ticket_id}", json={})
+    except Exception as e:
+        current_app.logger.error(f"{e}")
+        abort(500, description=f"An unknown error occurred: {e}")
 
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>/print", methods=["POST"])
@@ -193,17 +163,12 @@ def print_ticket(ticket_id):
     elif ticket_data["print_status"] == "PRINTED":
         return jsonify({"error": "already printed"}), 500
 
+
+    request_hamilton(ticket_id)
     current_app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "PENDING"}})
 
 
-    app = current_app._get_current_object()
-    Thread(target=generate_ticket, args=(ticket_id, app)).start()
-
     return jsonify({"status": "The asynchronous request was successfully started."}), 202
-    # except Exception as e:
-    #     print(e)
-    #     return jsonify({"error": f"An unknown error occurred: {e}"}), 500
-
 
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>/print", methods=["GET"])
