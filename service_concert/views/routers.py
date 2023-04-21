@@ -182,7 +182,7 @@ def update_concert(concert_id):
     return jsonify(updated_concert), 200
 
 
-@tickets_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
+@concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
     concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
     if not concert_data:
