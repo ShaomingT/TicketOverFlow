@@ -65,11 +65,21 @@ def create_concert():
     if not all(key in data for key in ("name", "venue", "date", "capacity", "status")):
         abort(400, description="name, date, location, capacity and status are required in the request body")
 
+    # if there is invalid field, return 400
+    allowed_fields = {"name", "venue", "date", "capacity", "status"}
+    for key in data.keys():
+        if key not in allowed_fields:
+            abort(400, description=f"Invalid field: {key}. Cannot update {key}.")
+
+
     # Validate the capacity field
     try:
         capacity = int(data["capacity"])
     except ValueError:
         abort(400, description="Capacity should be a integer")
+
+    if capacity <= 0:
+        abort(400, description="Capacity should be greater than 0")
 
     # Validate the status field
     allowed_statuses = ("ACTIVE", "CANCELLED", "SOLD_OUT")
@@ -141,7 +151,7 @@ def update_concert(concert_id):
     
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
-
+        
     update_data = request.get_json()
 
     if not update_data:
@@ -158,9 +168,20 @@ def update_concert(concert_id):
         if not valid_date(update_data["date"]):
             abort(400, description="Invalid date format. Date should be in YYYY-MM-DD format.")
     # valid of status
+    allowed_statuses = ("ACTIVE", "CANCELLED", "SOLD_OUT")
     if "status" in update_data:
         if not valid_status(update_data["status"]):
             abort(400, description=f"Status should be one of {', '.join(allowed_statuses)}")
+
+    # if capacity in update_data, it should >=0 and be int
+    if "capacity" in update_data:
+        try:
+            capacity = int(update_data["capacity"])
+        except ValueError:
+            abort(400, description="Capacity should be a integer")
+
+        if capacity <= 0:
+            abort(400, description="Capacity should be greater than 0")
 
     # Update concert details in the database
     current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
@@ -185,7 +206,12 @@ def update_concert(concert_id):
 @concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
     concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "print_status":0})
+    # if concert does not exist, return 404
     if not concert_data:
         return jsonify({"error": "The concert does not exist."}), 404
+
+    # if svg field not exit ,return 404
+    if "svg" not in concert_data:
+        return jsonify({"error": "The concert does not have a svg file."}), 404
 
     return concert_data["svg"], 200

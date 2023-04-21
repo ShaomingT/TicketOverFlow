@@ -220,3 +220,79 @@ def test_modify_concerts():
     assert response.json()['id'] == concert_id
 
 
+def test_modify_concerts_2():
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    #create_a_concert
+    response = requests.post(CURR_URLS['concert'], headers=headers, json={
+        "name": "Concert 1",
+        "date": "2020-10-10",
+        "venue": "Venue 1",
+        "capacity": 1000,
+        "status": "ACTIVE"
+    })
+    assert response.status_code == 200
+    # get the id of the concert
+    concert_id = response.json()['id']
+
+    #try to modify id
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "id": "123"
+        })
+    assert response.status_code == 400
+
+    #try to modify invalid field
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "invalid": "123"
+        })
+    assert response.status_code == 400
+
+    #try to modify invalid date
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "date": "2020-10-55"
+        })
+    assert response.status_code == 400
+
+    #try to modify invalid status
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "status": "INVALID"
+        })
+    assert response.status_code == 400
+
+    #try to modify invalid capacity
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "capacity": -1
+        })
+    assert response.status_code == 400
+
+    #try to modify invalid capacity
+    response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
+        "capacity": "invalid"
+        })
+    assert response.status_code == 400
+
+
+def test_generate_svg_1():
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    #create_a_concert
+    response = requests.post(CURR_URLS['concert'], headers=headers, json={
+        "name": "Concert 1",
+        "date": "2020-10-10",
+        "venue": "Venue 1",
+        "capacity": 1000,
+        "status": "ACTIVE"
+    })
+    assert response.status_code == 200
+    # get the id of the concert
+    concert_id = response.json()['id']
+
+    # get the id of the concert
+    response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
+    assert response.status_code == 404
+
+    #wait for 20 seconds, and fetch again
+    time.sleep(20)
+    response = requests.get(f"{CURR_URLS['concert']}/{concert_id}/seats", headers=headers)
+    assert response.status_code == 200
+
+    # assert response.headers['Content-Type'] == 'image/svg+xml'
+    # assert response.headers['Content-Disposition'] == 'attachment; filename=Concert_1.svg'
