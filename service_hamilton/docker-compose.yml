@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  service_hamilton:
+    image: service_hamilton
+    ports:
+      - "6666:6666"
+    environment:
+      - DOCUMENTDB_DATABASE_URI=mongodb://root:example@test_local_mongo_1:27017/
+networks:
+  default:
+    name: ticketoverflow
+    external: true
