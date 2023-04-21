@@ -33,6 +33,13 @@ docker-compose build
 docker-compose up -d
 cd ..
 
+echo ">>[SERVICE_HAMILTON]"
+echo "start hamilton services..."
+cd ./service_hamilton
+docker build -t service_hamilton .
+docker-compose build
+docker-compose up -d
+cd ..
 
 echo ">>[SERVICE_CONCERT]"
 # echo "start service_concert services..."
