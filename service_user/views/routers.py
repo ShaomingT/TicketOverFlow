@@ -21,7 +21,8 @@ def health_check():
                     "healthy": True
                 }
             ],
-            "memoryUsage": f"{memory_usage:.2f}MB"
+            "memoryUsage": f"{memory_usage:.2f}MB",
+            "cpuUsage": f"{process.cpu_percent():.2f}%"
         }
 
         return jsonify(response_data), 200
@@ -50,4 +51,4 @@ def get_user_by_id(user_id):
         user = User(**user_data)
         return jsonify(user.to_dict()), 200
     else:
-        return jsonify({"error": "The user does not exist.11"}), 404
+        return jsonify({"error": "The user does not exist."}), 404

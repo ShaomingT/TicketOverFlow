@@ -1,5 +1,4 @@
 from settings import LOCAL_API_URL
-from unittest.mock import patch
 import json
 import requests
 import time

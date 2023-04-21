@@ -147,7 +147,7 @@ def update_concert(concert_id):
     if not update_data:
         abort(400, description="No valid data provided in the request body")
 
-    allowed_updates = {"name", "venue", "date", "status"}
+    allowed_updates = {"name", "venue", "date", "status", "capacity"}
 
     for key in update_data.keys():
         if key not in allowed_updates:
