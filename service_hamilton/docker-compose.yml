@@ -4,9 +4,8 @@ services:
     image: service_hamilton
     ports:
       - "6666:6666"
-    environment:
-      - DOCUMENTDB_DATABASE_URI=mongodb://root:example@test_local_mongo_1:27017/
-      - HAMILTON_PATH=./bin/hamilton-v1.1.0-linux-arm64
+    env_file:
+      - local.env
 networks:
   default:
     name: ticketoverflow

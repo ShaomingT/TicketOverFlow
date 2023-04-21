@@ -63,9 +63,10 @@ def get_all_tickets():
         query["concert.id"] = concert_id
 
     # List all the purchased tickets based on the query
-    tickets_data = list(current_app.db_tickets.find(query, projection={"_id": 0}))
+    tickets_data = list(current_app.db_tickets.find(query, projection={"_id": 0, "svg":0}))
     if len(tickets_data) == 0:
         return jsonify({"error": "Unknown identifier provided as filter parameter"}), 404
+
     tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
 
     return jsonify([ticket.to_dict() for ticket in tickets]), 200
@@ -133,7 +134,7 @@ def create_ticket():
 def get_ticket_by_id(ticket_id):
     if ticket_id == "health":
         return health_check()
-    ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
+    ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0, "svg":0})
     if ticket_data:
         ticket = Ticket(**ticket_data)
         return jsonify(ticket.to_dict()), 200

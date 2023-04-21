@@ -4,8 +4,8 @@ services:
     image: service_ticket
     ports:
       - "9999:9999"
-    environment:
-      - DOCUMENTDB_DATABASE_URI=mongodb://root:example@test_local_mongo_1:27017/
+    env_file:
+      - local.env
 networks:
   default:
     name: ticketoverflow

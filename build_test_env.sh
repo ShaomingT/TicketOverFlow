@@ -9,6 +9,9 @@ echo "build docker network..."
 docker network create ticketoverflow
 
 
+ENV_FILE=local.env
+
+
 echo ">>[MONGODB]"
 echo "start mongodb test environment..."
 cd ./db/test_local
@@ -42,12 +45,12 @@ docker-compose up -d
 cd ..
 
 echo ">>[SERVICE_CONCERT]"
-# echo "start service_concert services..."
-# cd ./service_concert
-# docker build -t service_concert .
-# docker-compose build
-# docker-compose up -d
-# cd ..
+echo "start service_concert services..."
+cd ./service_concert
+docker build -t service_concert .
+docker-compose build
+docker-compose up -d
+cd ..
 
 
 echo "Done"

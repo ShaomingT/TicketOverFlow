@@ -39,7 +39,7 @@ def health_check():
 @concerts_blueprint.route("/concerts", methods=["GET"])
 def get_all_concerts():
     # get all concerts
-    concerts_data = current_app.db_concerts.find({}, projection={"_id": 0})
+    concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "svg":0})
     concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
     return jsonify(concerts), 200
 
@@ -130,7 +130,7 @@ def request_hamilton(concert_id):
 def get_concert_by_id(concert_id):
     if concert_id == "health":
         return health_check()
-    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
+    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "svg":0})
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
     return jsonify(concert_data), 200
@@ -171,7 +171,7 @@ def update_concert(concert_id):
         {"$unset": {"svg": ""}}
     )
 
-    updated_concert = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
+    updated_concert = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "svg":0})
     
     # request  to generate svg
     request_hamilton(concert_id)
@@ -182,7 +182,10 @@ def update_concert(concert_id):
     return jsonify(updated_concert), 200
 
 
-################################################################# 
-################################################################# 
+@tickets_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
+def get_printed_seat(concert_id):
+    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
+    if not concert_data:
+        return jsonify({"error": "The concert does not exist."}), 404
 
-
+    return ticket_data["svg"], 200
