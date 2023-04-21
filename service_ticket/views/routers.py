@@ -108,6 +108,7 @@ def create_ticket():
     try:
         current_app.db_tickets.insert_one(ticket)
     except Exception as e:
+        current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
 
     # Prepare the response
