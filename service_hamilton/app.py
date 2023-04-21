@@ -39,7 +39,7 @@ if __name__ == '__main__':
     app.config['SERVICE_USER_URL'] = "SERVICE_USER_URL"
     app.config['SERVICE_CONCERT_URL'] = "http://127.0.0.1:5000/api/v1/tickets"
     app.config['SERVICE_TICKET_URL'] = "SERVICE_TICKET_URL"
-    app.config['HAMILTON_PATH'] = environ.get("HAMILTON_PATH")
+    app.config['HAMILTON_PATH'] = "./bin/hamilton-v1.1.0-darwin-arm64"
 
     app.config['DOCUMENTDB_DATABASE_URI'] = "mongodb://root:example@localhost:27017/"
     client = MongoClient(app.config['DOCUMENTDB_DATABASE_URI'])

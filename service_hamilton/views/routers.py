@@ -87,7 +87,9 @@ def generate_concert(concert_input, app):
             with open(input_file, "w") as f:
                 json.dump(concert_input, f)
             output_file = f"./temp/{concert_id}_output"
-            cmd = f"{hamilton_path} generate ticket --input {input_file} --output {output_file}"
+            cmd = f"{hamilton_path} generate seating --input {input_file} --output {output_file}"
+            print(cmd)
+            logging.info("cmd: " + cmd)
             try:
                 subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 with open(f"{output_file}.svg", "r") as f:
@@ -96,7 +98,8 @@ def generate_concert(concert_input, app):
                 os.remove(input_file)
                 os.remove(output_file + ".svg")
             except subprocess.CalledProcessError as e:
-                logging.error(e.output)
+                print(e)
+                logging.info(e.output)
                 app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "ERROR"}})
     except Exception as e:
         logging.error(e)
@@ -107,7 +110,7 @@ def print_concert(concert_id):
     # get concert data
     concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0})
     # calculate purchased seats by count the number of tickets in db_users
-    purchased_count = current_app.db_users.count_documents({"concert.id": concert_id})
+    purchased_count = current_app.db_tickets.count_documents({"concert.id": concert_id})
     # svg payload
     svg_payload = {
         "id": concert_data["id"],
@@ -119,6 +122,7 @@ def print_concert(concert_id):
             "purchased": purchased_count
         }
     }
+    print("svg_payload: ", svg_payload)
 
 
     concert_data = request.get_json()
