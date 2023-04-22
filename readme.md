@@ -46,7 +46,16 @@ if given user_id or concert_id paras. return list of matched
 only accept two para, user_id and concert_id. if other para is provided, such as "price". return 404
 
 
+# lambda settings
+ticket processing: RAM 128 ~ 50s to generate a ticket
+seating processing: RAM 512 ~ 110s to generate a seating plan
+two lambda functions will be generated, one is for ticket, one is for seating plan
+it is trigged by an API gateway
 
+
+# documetn db
+username: ticketoverflow
+password: OW41ZGgFa8ixZj2p
 
 ## Cases
 ### Tickets:
