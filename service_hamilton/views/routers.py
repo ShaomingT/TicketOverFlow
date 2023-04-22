@@ -1,22 +1,19 @@
-from flask import Blueprint, jsonify, request, current_app, abort, current_app
-from models.hamilton_ticket import HamiltonTicket
+from flask import Blueprint, jsonify, request, abort, current_app
 import uuid
-import psutil
-import os, threading, json
+import os
+import json
 import subprocess
 from threading import Thread
 import logging
 import traceback
 
-
-
 hamilton_blueprint = Blueprint("hamilton", __name__)
+
 
 @hamilton_blueprint.route("/hamilton/test", methods=["GET"])
 def test():
     return "Hamilton service is up and running!", 200
 
-###### generate ticket ######
 
 def generate_ticket(ticket_input, app):
     try:
@@ -47,7 +44,6 @@ def generate_ticket(ticket_input, app):
         app.db_tickets.update_one({"id": ticket_id}, {"$set": {"print_status": "ERROR: " + str(e)}})
 
 
-
 @hamilton_blueprint.route("/hamilton/tickets/<string:ticket_id>", methods=["POST"])
 def print_ticket(ticket_id):
     # get tickets data
@@ -70,14 +66,11 @@ def print_ticket(ticket_id):
         }
     }
 
-
     app = current_app._get_current_object()
     Thread(target=generate_ticket, args=(svg_payload, app)).start()
 
     return jsonify({"status": "The asynchronous request was successfully started."}), 202
 
-
-##### generat seat #####
 
 def generate_concert(concert_input, app):
     try:
@@ -105,19 +98,23 @@ def generate_concert(concert_input, app):
 
             purchased_count = concert_input["seats"]["purchased"]
 
-            # compare the svg_seat_num with the purchased_count, if svg_seat_num > purchased_count, abort, otherwise, generate svg. if svg_seat_num doesn't exist, generate svg
+            # compare the svg_seat_num with the purchased_count, if svg_seat_num > purchased_count, abort, otherwise,
+            # generate svg. if svg_seat_num doesn't exist, generate svg
             if "svg_seat_num" in concert_data:
                 if concert_data["svg_seat_num"] > purchased_count:
-                    abort(400, "The number of seats in the svg file is larger than the number of purchased tickets.")
-                    
+                    return jsonify({"error": f"1 The number of seats in the svg file {concert_data['svg_seat_num']} is "
+                                             f"larger than the number of"
+                                             f"purchased tickets {purchased_count}."}), 400
 
-            app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PRINTED", "svg": svg_content, "svg_seat_num": purchased_count}})
+            app.db_concerts.update_one({"id": concert_id}, {
+                "$set": {"print_status": "PRINTED", "svg": svg_content, "svg_seat_num": purchased_count}})
             os.remove(input_file)
             os.remove(output_file + ".svg")
 
     except Exception as e:
         logging.error(e)
         app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "ERROR"}})
+
 
 @hamilton_blueprint.route("/hamilton/concerts/<string:concert_id>", methods=["POST"])
 def print_concert(concert_id):
@@ -138,12 +135,14 @@ def print_concert(concert_id):
     }
     print("svg_payload: ", svg_payload)
 
-    # compare the svg_seat_num with the purchased_count, if svg_seat_num > purchased_count, abort, otherwise, generate svg. if svg_seat_num doesn't exist, generate svg
+    # compare the svg_seat_num with the purchased_count, if svg_seat_num > purchased_count, abort, otherwise,
+    # generate svg. if svg_seat_num doesn't exist, generate svg
     if "svg_seat_num" in concert_data:
         if concert_data["svg_seat_num"] > purchased_count:
-            abort(400, "The number of seats in the svg file is larger than the number of purchased tickets.")
+            return jsonify({"error": f"0 The number of seats in the svg file {concert_data['svg_seat_num']} is "
+                                     f"larger than the number of"
+                                     f"purchased tickets {purchased_count}."}), 400
 
-    concert_data = request.get_json()
     app = current_app._get_current_object()
     Thread(target=generate_concert, args=(svg_payload, app)).start()
 
