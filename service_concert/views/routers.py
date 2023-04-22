@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, current_app, request, abort
 from models.concert import Concert
 import uuid
-import psutil, os
+import psutil
+import os
 import datetime
 import requests
+
 concerts_blueprint = Blueprint("concerts", __name__)
 
 
@@ -13,6 +15,7 @@ def health_check():
         # If everything is OK, return a 200 status code with health information
         process = psutil.Process(os.getpid())
         memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
+        cpu_usage = process.cpu_percent()
 
         response_data = {
             "healthy": True,
@@ -22,24 +25,27 @@ def health_check():
                     "healthy": True
                 }
             ],
-            "memoryUsage": f"{memory_usage:.2f}MB"
+            "memoryUsage": f"{memory_usage:.2f}MB",
+            "cpuUsage": f"{cpu_usage:.2f}%"
         }
+
+        # If the CPU usage is above 98%, return a 500 status code
+        if cpu_usage > 98:
+            current_app.logger.error(f"Health check failed: CPU usage is too high")
+            return jsonify({"error": "Service is not running optimally."}), 503
 
         return jsonify(response_data), 200
     except Exception as e:
         # If there's an error, return a 503 status code indicating the service is not healthy
         current_app.logger.error(f"Health check failed: {e}")
-        return jsonify({"error": "Service is not healthy."}), 503
-    else:
-        # If the service is not healthy, return a 500 status code
         return jsonify({"error": "Service is not healthy."}), 500
-
 
 
 @concerts_blueprint.route("/concerts", methods=["GET"])
 def get_all_concerts():
     # get all concerts
-    concerts_data = current_app.db_concerts.find({}, projection={"_id":0, "id": 1, "name": 1, "venue": 1, "date": 1, "capacity": 1, "status": 1})
+    concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "id": 1, "name": 1, "venue": 1, "date": 1,
+                                                                 "capacity": 1, "status": 1})
     concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
     return jsonify(concerts), 200
 
@@ -51,11 +57,13 @@ def valid_date(date):
     except ValueError:
         return False
 
+
 def valid_status(status):
     allowed_statuses = ("ACTIVE", "CANCELLED", "SOLD_OUT")
     if status not in allowed_statuses:
         return False
     return True
+
 
 @concerts_blueprint.route("/concerts", methods=["POST"])
 def create_concert():
@@ -71,7 +79,6 @@ def create_concert():
         if key not in allowed_fields:
             abort(400, description=f"Invalid field: {key}. Cannot update {key}.")
 
-
     # Validate the capacity field
     try:
         capacity = int(data["capacity"])
@@ -86,13 +93,11 @@ def create_concert():
     if data["status"] not in allowed_statuses:
         abort(400, description=f"Status should be one of {', '.join(allowed_statuses)}")
 
-
     # Validate the date format
     try:
-        concert_date = datetime.datetime.strptime(data["date"], "%Y-%m-%d").date()
+        datetime.datetime.strptime(data["date"], "%Y-%m-%d").date()
     except ValueError:
         abort(400, description="Invalid date format. Date should be in YYYY-MM-DD format.")
-
 
     # Create a new ticket with a unique ID and ACTIVE status
     concert_id = str(uuid.uuid4())
@@ -123,14 +128,18 @@ def create_concert():
     # request  to generate svg
     request_hamilton(concert_id)
     current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
-    #todo: update to db
-    
+    # todo: update to db
+
     return jsonify(concert_response), 200
+
 
 def request_hamilton(concert_id):
     try:
         response = requests.post(
             f"{current_app.config['SERVICE_HAMILTON_URL']}/concerts/{concert_id}", json={})
+        if response.status_code != 202:
+            current_app.logger.error(f"Error requesting Hamilton service: {response.json()}")
+            abort(500, description=f"Error requesting Hamilton service: {response.json()}")
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
@@ -140,18 +149,20 @@ def request_hamilton(concert_id):
 def get_concert_by_id(concert_id):
     if concert_id == "health":
         return health_check()
-    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "svg":0, "print_status":0})
+    concert_data = current_app.db_concerts.find_one({"id": concert_id},
+                                                    projection={"_id": 0, "svg": 0, "print_status": 0})
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
     return jsonify(concert_data), 200
 
+
 @concerts_blueprint.route("/concerts/<string:concert_id>", methods=["PUT"])
 def update_concert(concert_id):
     concert_data = current_app.db_concerts.find_one({"id": concert_id})
-    
+
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
-        
+
     update_data = request.get_json()
 
     if not update_data:
@@ -177,35 +188,33 @@ def update_concert(concert_id):
     if "capacity" in update_data:
         try:
             capacity = int(update_data["capacity"])
+            if capacity <= 0:
+                return jsonify({"error": "Capacity should be greater than 0"}), 400
         except ValueError:
-            abort(400, description="Capacity should be a integer")
-
-        if capacity <= 0:
-            abort(400, description="Capacity should be greater than 0")
+            return jsonify({"error": "Capacity should be a integer"}), 400
 
     # Update concert details in the database
     current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
 
-    # remove svg file if it exist in db_concerts
-    result = current_app.db_concerts.update_one(
+    # remove svg file if it exists in db_concerts
+    current_app.db_concerts.update_one(
         {"id": concert_id},
         {"$unset": {"svg": ""}}
     )
 
-    updated_concert = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "svg":0, "print_status":0})
-    
+    updated_concert = current_app.db_concerts.find_one({"id": concert_id},
+                                                       projection={"_id": 0, "svg": 0, "print_status": 0})
+
     # request  to generate svg
     request_hamilton(concert_id)
     current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
-
-    
 
     return jsonify(updated_concert), 200
 
 
 @concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
-    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "print_status":0})
+    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "print_status": 0})
     # if concert does not exist, return 404
     if not concert_data:
         return jsonify({"error": "The concert does not exist."}), 404
