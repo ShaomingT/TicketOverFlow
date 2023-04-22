@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
 import logging
 import sys
+from pprint import pprint
 
 
 # randomly generate concert info
@@ -116,7 +117,7 @@ def test_create_concerts_2():
         "status": "SOLD_OUT"
     })
     assert response.status_code == 200
-    
+
 
 
 def test_create_concerts_invalid_data():
@@ -158,7 +159,7 @@ def test_create_concerts_invalid_data():
         "status": "ACTIVE",
         "invalid": "invalid"
     })
-    assert response.status_code == 400    
+    assert response.status_code == 400
 
 def test_get_concert_by_id():
     headers = {'Accept': 'application/json'}
@@ -183,7 +184,7 @@ def test_get_concert_by_id():
     # make sure no other fields are added
     assert len(response.json()) == 6
     # make sure the uuid is valid
-    assert response.json()['id'] == concert_id 
+    assert response.json()['id'] == concert_id
 
 
 def test_modify_concerts():
@@ -413,13 +414,22 @@ def test_get_all_tickets_with_filters_2():
 def test_get_all_tickets_with_filters_3():
     # given no user_id but valid concert_id
     data = helper_random_generate_one_ticket()
+    pprint(data)
     headers = {'Accept': 'application/json'}
     response = requests.get(f"{CURR_URLS['ticket']}?concert_id={data['concert']['id']}", headers=headers)
     assert response.status_code == 200
+    # one of the response's concert_id and user_id should be the same as the given
+    print("\nnumber of tickets: ", len(response.json()))
+    print("\nresponse: ")
+    pprint(response.json())
+    # get a list of concert id, and one of them should equal to the given concert id
+    concert_ids = [ticket['concert']['id'] for ticket in response.json()]
+    assert data['concert']['id'] in concert_ids
     # the response's concert_id and user_id should be the same as the given
-    assert response.json()[0]['concert']['id'] == data['concert']['id']
-    assert response.json()[0]['user']['id'] == data['user']['id']
-    
+    user_ids = [ticket['user']['id'] for ticket in response.json()]
+    assert data['user']['id'] in user_ids
+
+
 
 def test_get_all_tickets_with_filters_4():
     headers = {'Accept': 'application/json'}
@@ -500,8 +510,8 @@ def test_full_ticket_test_2():
     response = requests.get(f"{CURR_URLS['concert']}/{concert['id']}", headers=headers)
     assert response.status_code == 200
     assert response.json()['status'] == 'ACTIVE'
-    
-        
+
+
 
 # test get all concert
 def test_get_all_concert_post():
@@ -552,3 +562,6 @@ def test_ticket_print():
     # GET /tickets/{id}/print, with response status 404. id is previous id
     response = requests.get(f"{CURR_URLS['ticket']}/{ticket['id']}/print", headers=headers)
     assert response.status_code == 404
+
+
+# concert
