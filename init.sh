@@ -1,0 +1,1 @@
+echo "assume that it is running on Python3.10 and psgcopg2 installed"

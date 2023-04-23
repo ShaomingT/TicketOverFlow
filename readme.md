@@ -76,3 +76,12 @@ assume the correct date format is     %Y-%m-%d"
 cases not considered. 
 [ ] every time, when buy a new ticket, it need to see whether the concert is full or not. if it is full, don't sell this ticket and return chaneg the status of concert to SOLD_OUT.
 [] when a new ticket, the concert plan need to update
+
+
+# dev
+run localstack
+docker run --rm -it -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack
+
+# 
+terraform plan -var-file="secret.tfvars"   
+terraform apply -var-file="secret.tfvars"   
