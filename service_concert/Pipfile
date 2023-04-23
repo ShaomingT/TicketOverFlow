@@ -5,10 +5,11 @@ name = "pypi"
 
 [packages]
 flask = "*"
-pymongo = "*"
 gunicorn = "*"
 psutil = "*"
 requests = "*"
+flask-sqlalchemy = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

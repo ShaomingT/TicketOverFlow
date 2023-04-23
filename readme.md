@@ -65,6 +65,7 @@ return 400, with description, if concert is full
 
 
 ### concert, 
+assume the correct date format is     %Y-%m-%d"
 
 404, if the concert pic does not exist or not printed yet
 

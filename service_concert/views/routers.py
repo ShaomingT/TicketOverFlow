@@ -1,5 +1,8 @@
 from flask import Blueprint, jsonify, current_app, request, abort
 from models.concert import Concert
+from models.user import User
+from models.ticket import Ticket
+from models import db
 import uuid
 import psutil
 import os
@@ -44,10 +47,22 @@ def health_check():
 @concerts_blueprint.route("/concerts", methods=["GET"])
 def get_all_concerts():
     # get all concerts
-    concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "id": 1, "name": 1, "venue": 1, "date": 1,
-                                                                 "capacity": 1, "status": 1})
-    concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
-    return jsonify(concerts), 200
+    # concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "id": 1, "name": 1, "venue": 1, "date": 1,
+    #                                                              "capacity": 1, "status": 1})
+    # concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
+    # return jsonify(concerts), 200
+    #
+    # sqlalchemy sql query to get all concerts, with the field id, name, venue, date, capacity and status
+    concerts = Concert.query.all()
+    concerts_list = [concert.to_dict() for concert in concerts]
+    allowed_fields = {"id", "name", "venue", "date", "capacity", "status"}
+    # only allowed_fields can be returned
+    filtered_concerts_list = [
+        {key: concert[key] for key in concert.keys() if key in allowed_fields}
+        for concert in concerts_list
+    ]
+    return jsonify(filtered_concerts_list), 200
+
 
 
 def valid_date(date):
@@ -112,7 +127,10 @@ def create_concert():
 
     try:
         # save to db
-        current_app.db_concerts.insert_one(concert)
+        # current_app.db_concerts.insert_one(concert)
+        new_concert = Concert(**concert)
+        db.session.add(new_concert)
+        db.session.commit()
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
@@ -127,7 +145,11 @@ def create_concert():
     }
     # request  to generate svg
     request_hamilton(concert_id)
-    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    # current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    concert = Concert.query.filter_by(id=concert_id).first()
+    if concert:
+        concert.print_status = "PENDING"
+        db.session.commit()
     # todo: update to db
 
     return jsonify(concert_response), 200
@@ -149,8 +171,19 @@ def request_hamilton(concert_id):
 def get_concert_by_id(concert_id):
     if concert_id == "health":
         return health_check()
-    concert_data = current_app.db_concerts.find_one({"id": concert_id},
-                                                    projection={"_id": 0, "svg": 0, "print_status": 0})
+    # Check if the concert_id is a valid UUID
+    try:
+        uuid.UUID(concert_id, version=4)
+    except ValueError:
+        abort(404, description=f"Invalid concert id: {concert_id}")
+
+    # concert_data = current_app.db_concerts.find_one({"id": concert_id},
+    #                                                 projection={"_id": 0, "svg": 0, "print_status": 0})
+    concert = Concert.query.filter_by(id=concert_id).first()
+    if concert:
+        concert_data = concert.to_dict(exclude_fields=["svg", "print_status", "svg_seat_num"])
+    else:
+        concert_data = None
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
     return jsonify(concert_data), 200
@@ -158,7 +191,16 @@ def get_concert_by_id(concert_id):
 
 @concerts_blueprint.route("/concerts/<string:concert_id>", methods=["PUT"])
 def update_concert(concert_id):
-    concert_data = current_app.db_concerts.find_one({"id": concert_id})
+
+    try:
+        uuid.UUID(concert_id, version=4)
+    except ValueError:
+        abort(404, description=f"Invalid concert id: {concert_id}")
+
+    # concert_data = current_app.db_concerts.find_one({"id": concert_id})
+    concert = Concert.query.filter_by(id=concert_id).first()
+    concert_data = concert.to_dict() if concert else None
+
 
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
@@ -194,33 +236,57 @@ def update_concert(concert_id):
             return jsonify({"error": "Capacity should be a integer"}), 400
 
     # Update concert details in the database
-    current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
+    # current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
+
+    concert = Concert.query.filter_by(id=concert_id).first()
+    for key, value in update_data.items():
+        setattr(concert, key, value)
+    db.session.commit()
 
     # remove svg file if it exists in db_concerts
-    current_app.db_concerts.update_one(
-        {"id": concert_id},
-        {"$unset": {"svg": ""}}
-    )
+    # current_app.db_concerts.update_one(
+    #     {"id": concert_id},
+    #     {"$unset": {"svg": ""}}
+    # )
+    if concert:
+        concert.svg = None
+        concert.svg_seat_num = None
+        db.session.commit()
 
-    updated_concert = current_app.db_concerts.find_one({"id": concert_id},
-                                                       projection={"_id": 0, "svg": 0, "print_status": 0})
+    # updated_concert = current_app.db_concerts.find_one({"id": concert_id},
+    #                                                    projection={"_id": 0, "svg": 0, "print_status": 0})
+    #
+    concert = Concert.query.filter_by(id=concert_id).first()
+    if concert:
+        updated_concert = {attr: getattr(concert, attr) for attr in
+                           ['id', 'name', 'venue', 'date', 'capacity', 'status']}
+    else:
+        updated_concert = None
 
     # request  to generate svg
     request_hamilton(concert_id)
-    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+#    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    concert = Concert.query.filter_by(id=concert_id).first()
+    if concert:
+        concert.print_status = "PENDING"
+        db.session.commit()
 
     return jsonify(updated_concert), 200
 
 
 @concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
-    concert_data = current_app.db_concerts.find_one({"id": concert_id}, projection={"_id": 0, "print_status": 0})
+    concert_data = Concert.query.filter_by(id=concert_id).first()
+    if concert_data:
+        concert_data = concert_data.to_dict()
+
     # if concert does not exist, return 404
     if not concert_data:
         return jsonify({"error": "The concert does not exist."}), 404
 
-    # if svg field not exit ,return 404
-    if "svg" not in concert_data:
+    # if svg field not exit or is None, return 404
+    if "svg" not in concert_data or concert_data["svg"] is None:
         return jsonify({"error": "The concert does not have a svg file."}), 404
 
     return concert_data["svg"], 200
+
