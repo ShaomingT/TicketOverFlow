@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  service_hamilton:
+    image: service_hamilton
+    ports:
+      - "6666:6666"
+    env_file:
+      - local.env
+networks:
+  default:
+    name: ticketoverflow
+    external: true
