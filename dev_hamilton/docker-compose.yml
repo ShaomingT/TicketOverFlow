@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  dev_hamilton:
+    image: dev_hamilton
+    ports:
+      - "6666:6666"
+networks:
+  default:
+    name: ticketoverflow
+    external: true

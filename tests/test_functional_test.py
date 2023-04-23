@@ -346,30 +346,51 @@ def test_get_all_tickets():
     assert response.status_code == 200
     assert len(response.json()) == 0
 
+
+def helper_create_concert(max_seat=10):
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    #create_a_concert
+    response = requests.post(CURR_URLS['concert'], headers=headers, json={
+        "name": "Concert 1",
+        "date": "2020-10-10",
+        "venue": "Venue 1",
+        "capacity": max_seat,
+        "status": "ACTIVE"
+    })
+    assert response.status_code == 200
+    # get the id of the concert
+    concert_id = response.json()['id']
+    return concert_id
+
 # test create tickets
 def test_create_ticket():
-    concert = helper_random_get_one_concert()
+    concert_id = helper_create_concert()
     user = helper_random_get_one_user()
+
+    print("concert_id", concert_id)
+    print("user", user)
 
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
     #create_a_concert
     response = requests.post(CURR_URLS['ticket'], headers=headers, json={
-        "concert_id": concert['id'],
+        "concert_id": concert_id,
         "user_id": user['id'],
     })
     assert response.status_code == 200
     data = response.json()
-    assert data['concert']['id'] == concert['id']
+    assert data['concert']['id'] == concert_id
     # assert data['concert']['url'] == f"{CURR_URLS['concert']}/{concert['id']}"
     assert data['user']['id'] == user['id']
     # assert data['user']['url'] == f"{CURR_URLS['user']}/{user['id']}"
     assert data['print_status'] == 'NOT_PRINTED'
 
+    print("ticket_id", data['id'])
     # get the ticket by id
     response = requests.get(f"{CURR_URLS['ticket']}/{data['id']}", headers=headers)
+    print(response.json())
     assert response.status_code == 200
     assert response.json()['id'] == data['id']
-    assert response.json()['concert']['id'] == concert['id']
+    assert response.json()['concert']['id'] == concert_id
     assert response.json()['user']['id'] == user['id']
     assert response.json()['print_status'] == 'NOT_PRINTED'
 
@@ -395,6 +416,7 @@ def test_get_all_tickets_with_filters_1():
     # given valid user_id and concert_id
     headers = {'Accept': 'application/json'}
     response = requests.get(f"{CURR_URLS['ticket']}?user_id={data['user']['id']}&concert_id={data['concert']['id']}", headers=headers)
+    print(response.content)
     # assert response.status_code == 200
     # the response's concert_id and user_id should be the same as the given
     assert response.json()[0]['concert']['id'] == data['concert']['id']

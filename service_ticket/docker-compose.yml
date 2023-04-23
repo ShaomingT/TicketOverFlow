@@ -1,11 +1,14 @@
 version: "3.9"
 services:
   service_ticket:
+    build: .
     image: service_ticket
     ports:
       - "9999:9999"
     env_file:
       - local.env
+    volumes:
+      - ${PWD}:/app
 networks:
   default:
     name: ticketoverflow

@@ -57,31 +57,56 @@ def get_all_tickets():
     user_id = request.args.get("user_id")
     concert_id = request.args.get("concert_id")
 
+    # check if the user_id and concert_id are valid uuid, if not return 404
+    if user_id:
+        try:
+            uuid.UUID(user_id)
+        except ValueError:
+            return jsonify({"error": "Unknown identifier provided as filter parameter"}), 404
+    if concert_id:
+        try:
+            uuid.UUID(concert_id)
+        except ValueError:
+            return jsonify({"error": "Unknown identifier provided as filter parameter"}), 404
+
+
     # if no parameters are provided, return all tickets
     if not user_id and not concert_id:
         # tickets_data = list(current_app.db_tickets.find({}, projection={"_id": 0, "svg": 0}))
         # tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
         # return jsonify([ticket.to_dict() for ticket in tickets]), 200
         tickets = Ticket.query.all()
-        return jsonify([ticket.to_dict(exclude_fields=["svg"]) for ticket in tickets]), 200
+        return jsonify([ticket.to_dict(include_fields=['id', 'concert', 'user', 'print_status']) for ticket in tickets]), 200
 
     # Build the query based on the parameters
     query = {}
     if user_id:
-        query["user.id"] = user_id
+        query["user_id"] = user_id
     if concert_id:
-        query["concert.id"] = concert_id
+        query["concert_id"] = concert_id
 
     # List all the purchased tickets based on the query
     # tickets_data = list(current_app.db_tickets.find(query, projection={"_id": 0, "svg": 0}))
     tickets = Ticket.query.filter_by(**query).all()
-    tickets_data = [ticket.to_dict(exclude_fields=["svg"]) for ticket in tickets]
-    if len(tickets_data) == 0:
+    if len(tickets) == 0:
         return jsonify({"error": "Unknown identifier provided as filter parameter"}), 404
 
-    tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
+    response_list = []
+    for ticket in tickets:
+        response_list.append({
+            "id": ticket.id,
+            "concert": {
+                "id": ticket.concert_id,
+                "url": f"{current_app.config['SERVICE_CONCERT_URL']}/concerts/{ticket.concert_id}"
+            },
+            "user": {
+                "id": ticket.user_id,
+                "url": f"{current_app.config['SERVICE_USER_URL']}/users/{ticket.user_id}"
+            },
+            "print_status": ticket.print_status,
+        })
+    return jsonify(response_list), 200
 
-    return jsonify([ticket.to_dict() for ticket in tickets]), 200
 
 
 def request_hamilton_concert(concert_id):
@@ -191,8 +216,21 @@ def get_ticket_by_id(ticket_id):
         return health_check()
     ticket_data = Ticket.query.filter_by(id=ticket_id).first()
     if ticket_data:
-        ticket = Ticket(**ticket_data)
-        return jsonify(ticket.to_dict()), 200
+        # ticket_data = ticket_data.to_dict(include_fields=['id', 'concert_id', 'user_id', 'print_status'])
+        # build response json file
+        ticket_response = {
+            "id": ticket_data.id,
+            "concert": {
+                "id": ticket_data.concert_id,
+                "url": f"{current_app.config['SERVICE_CONCERT_URL']}/{ticket_data.concert_id}"
+            },
+            "user": {
+                "id": ticket_data.user_id,
+                "url": f"{current_app.config['SERVICE_USER_URL']}/{ticket_data.user_id}"
+            },
+            "print_status": ticket_data.print_status
+        }
+        return jsonify(ticket_response), 200
     else:
         return jsonify({"error": "The ticket does not exist."}), 404
 

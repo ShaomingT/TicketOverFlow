@@ -7,9 +7,16 @@ from models import db
 
 def create_app(config_overrides=None):
     app = Flask(__name__)
-
     app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # print all the env variables
+    for key, value in environ.items():
+        print(f"{key}={value}")
+
+    # print all env variables in logger error
+    app.logger.error("env variables:")
+    for key, value in environ.items():
+        app.logger.error(f"{key}={value}")
     if config_overrides:
         app.config.update(config_overrides)
 

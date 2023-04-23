@@ -16,5 +16,10 @@ def ticket(ticket_id):
     print(s)
     return f'begin render tickets {ticket_id}', 202
 
+
+def wsgi_app(environ, start_response):
+    return app(environ, start_response)
+
+
 if __name__ == '__main__':
     app.run(port=6666)
