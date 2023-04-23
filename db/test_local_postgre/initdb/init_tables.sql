@@ -7,7 +7,7 @@ CREATE TABLE users (
   email VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE concerts (
+CREATE TABLE tickets (
   id UUID PRIMARY KEY,
   concert_id UUID NOT NULL,
   user_id UUID NOT NULL,
@@ -15,11 +15,11 @@ CREATE TABLE concerts (
   svg TEXT
 );
 
-CREATE TABLE tickets (
+CREATE TABLE concerts (
   id UUID PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   venue VARCHAR(255) NOT NULL,
-  date DATE NOT NULL,
+  date VARCHAR(255) NOT NULL,
   capacity INTEGER NOT NULL,
   status VARCHAR(255),
   svg TEXT,
