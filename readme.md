@@ -84,4 +84,5 @@ docker run --rm -it -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack
 
 # 
 terraform plan -var-file="secret.tfvars"   
-terraform apply -var-file="secret.tfvars"   
+terraform apply -var-file="secret.tfvars"  
+terraform destroy -var-file="secret.tfvars"   

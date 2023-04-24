@@ -175,20 +175,22 @@ def get_concert_info(concert_id, conn):
 # the input {"event": "ticket",
 #           "id": "[UUID]",}
 def lambda_handler(event, context):
-    try:
-        body = json.loads(event["body"])
-    except json.JSONDecodeError as e:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({"error": f"Invalid JSON: {str(e)}"}),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
-        }
-    # body = event['body']
-
-    event_name = body["event"]
-    _id = body["id"]
+    # try:
+    #     body = json.loads(event["body"])
+    # except json.JSONDecodeError as e:
+    #     return {
+    #         'statusCode': 400,
+    #         'body': json.dumps({"error": f"Invalid JSON: {str(e)}"}),
+    #         'headers': {
+    #             'Content-Type': 'application/json'
+    #         }
+    #     }
+    # # body = event['body']
+    #
+    # event_name = body["event"]
+    # _id = body["id"]
+    event_name = event["event"]
+    _id = event["id"]
 
     # if the event is not "concert" or "ticket", return 404
     if event_name != "concert" and event_name != "ticket":
