@@ -69,14 +69,14 @@ def get_all_tickets():
         except ValueError:
             return jsonify({"error": "Unknown identifier provided as filter parameter"}), 404
 
-
     # if no parameters are provided, return all tickets
     if not user_id and not concert_id:
         # tickets_data = list(current_app.db_tickets.find({}, projection={"_id": 0, "svg": 0}))
         # tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
         # return jsonify([ticket.to_dict() for ticket in tickets]), 200
         tickets = Ticket.query.all()
-        return jsonify([ticket.to_dict(include_fields=['id', 'concert', 'user', 'print_status']) for ticket in tickets]), 200
+        return jsonify(
+            [ticket.to_dict(include_fields=['id', 'concert', 'user', 'print_status']) for ticket in tickets]), 200
 
     # Build the query based on the parameters
     query = {}
@@ -108,11 +108,11 @@ def get_all_tickets():
     return jsonify(response_list), 200
 
 
-
 def request_hamilton_concert(concert_id):
     try:
         response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}/concerts/{concert_id}", json={})
+            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
+                                                                   "id": str(concert_id)})
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
@@ -240,7 +240,10 @@ def get_ticket_by_id(ticket_id):
 def request_hamilton(ticket_id):
     try:
         response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}/tickets/{ticket_id}", json={})
+            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={
+                "event": "ticket",
+                "id": str(ticket_id)
+            })
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")

@@ -64,7 +64,6 @@ def get_all_concerts():
     return jsonify(filtered_concerts_list), 200
 
 
-
 def valid_date(date):
     try:
         datetime.datetime.strptime(date, "%Y-%m-%d").date()
@@ -158,7 +157,8 @@ def create_concert():
 def request_hamilton(concert_id):
     try:
         response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}/concerts/{concert_id}", json={})
+            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
+                                                                   "id": concert_id})
         if response.status_code != 202:
             current_app.logger.error(f"Error requesting Hamilton service: {response.json()}")
             abort(500, description=f"Error requesting Hamilton service: {response.json()}")
@@ -191,7 +191,6 @@ def get_concert_by_id(concert_id):
 
 @concerts_blueprint.route("/concerts/<string:concert_id>", methods=["PUT"])
 def update_concert(concert_id):
-
     try:
         uuid.UUID(concert_id, version=4)
     except ValueError:
@@ -200,7 +199,6 @@ def update_concert(concert_id):
     # concert_data = current_app.db_concerts.find_one({"id": concert_id})
     concert = Concert.query.filter_by(id=concert_id).first()
     concert_data = concert.to_dict() if concert else None
-
 
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
@@ -265,7 +263,7 @@ def update_concert(concert_id):
 
     # request  to generate svg
     request_hamilton(concert_id)
-#    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+    #    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
     concert = Concert.query.filter_by(id=concert_id).first()
     if concert:
         concert.print_status = "PENDING"
@@ -289,4 +287,3 @@ def get_printed_seat(concert_id):
         return jsonify({"error": "The concert does not have a svg file."}), 404
 
     return concert_data["svg"], 200
-

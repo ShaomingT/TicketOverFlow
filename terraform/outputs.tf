@@ -22,10 +22,21 @@ output "rds_uri" {
   value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.taskoverflow.endpoint}/${aws_db_instance.taskoverflow.db_name}"
 }
 
-output "api_gateway_endpoint_url" {
+output "hamilton_endpoint" {
   value = "${aws_api_gateway_deployment.hamilton.invoke_url}/hamilton"
 }
 
+output "user_url" {
+  value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1/users"
+}
+
+output "ticket_url" {
+  value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1/tickets"
+}
+
+output "concert_url" {
+  value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1/concerts"
+}
 
 #output "container_image_concert_url" {
 #    value = "${aws_ecr_repository.concert.repository_url}:latest"

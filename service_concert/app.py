@@ -8,6 +8,10 @@ import logging
 def create_app(config_overrides=None):
     app = Flask(__name__)
 
+    gunicorn_error_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers.extend(gunicorn_error_logger.handlers)
+    app.logger.setLevel(logging.DEBUG)
+
     app.config['SERVICE_USER_URL'] = environ.get("SERVICE_USER_URL")
     app.config['SERVICE_CONCERT_URL'] = environ.get("SERVICE_CONCERT_URL")
     app.config['SERVICE_TICKET_URL'] = environ.get("SERVICE_TICKET_URL")
@@ -52,3 +56,4 @@ if __name__ == '__main__':
 
     app.app_context().push()
     app.run(debug=True, port=7777)
+#a

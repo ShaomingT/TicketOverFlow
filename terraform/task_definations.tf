@@ -19,6 +19,28 @@ resource "aws_ecs_task_definition" "concert" {
           hostPort      = 7777
         }
       ]
+      environment : [
+        {
+          name  = "SQLALCHEMY_DATABASE_URI"
+          value = "${local.rds_uri}/ticketoverflow"
+        },
+        {
+          name  = "SERVICE_HAMILTON_URL"
+          value = local.hamilton_endpoint
+        },
+        {
+          name  = "SERVICE_TICKET_URL"
+          value = local.ticket_endpoint
+        },
+        {
+          name  = "SERVICE_USER_URL"
+          value = local.user_endpoint
+        },
+        {
+          name  = "SERVICE_CONCERT_URL"
+          value = local.concert_endpoint
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
@@ -53,6 +75,28 @@ resource "aws_ecs_task_definition" "ticket" {
           hostPort      = 9999
         }
       ]
+      environment : [
+        {
+          name  = "SQLALCHEMY_DATABASE_URI"
+          value = "${local.rds_uri}/ticketoverflow"
+        },
+        {
+          name  = "SERVICE_HAMILTON_URL"
+          value = local.hamilton_endpoint
+        },
+        {
+          name  = "SERVICE_TICKET_URL"
+          value = local.ticket_endpoint
+        },
+        {
+          name  = "SERVICE_USER_URL"
+          value = local.user_endpoint
+        },
+        {
+          name  = "SERVICE_CONCERT_URL"
+          value = local.concert_endpoint
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
@@ -84,6 +128,28 @@ resource "aws_ecs_task_definition" "user" {
         {
           containerPort = 8888
           hostPort      = 8888
+        }
+      ]
+      environment : [
+        {
+          name  = "SQLALCHEMY_DATABASE_URI"
+          value = "${local.rds_uri}/ticketoverflow"
+        },
+        {
+          name  = "SERVICE_HAMILTON_URL"
+          value = local.hamilton_endpoint
+        },
+        {
+          name  = "SERVICE_TICKET_URL"
+          value = local.ticket_endpoint
+        },
+        {
+          name  = "SERVICE_USER_URL"
+          value = local.user_endpoint
+        },
+        {
+          name  = "SERVICE_CONCERT_URL"
+          value = local.concert_endpoint
         }
       ]
       logConfiguration = {

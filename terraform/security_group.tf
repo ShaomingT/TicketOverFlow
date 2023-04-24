@@ -53,8 +53,8 @@ resource "aws_security_group" "ecs" {
   description = "Allow inbound traffic"
 
   ingress {
-    from_port   = 6666
-    to_port     = 6666
+    from_port   = 9999
+    to_port     = 9999
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
