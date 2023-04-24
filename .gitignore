@@ -4,7 +4,8 @@ tests/__pycache__/
 /.pytest_cache/
 /.vscode/
 .credentials
-
+.idea
+*.pyc
 # Local .terraform directories
 **/.terraform/*
 
