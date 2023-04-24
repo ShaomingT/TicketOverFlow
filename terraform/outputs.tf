@@ -23,5 +23,5 @@ output "rds_uri" {
 }
 
 output "api_gateway_endpoint_url" {
-  value = join("", ["https://", substr(aws_api_gateway_rest_api.hamilton.execution_arn, 19, -1), "/prod/hamilton"])
+  value = "${aws_api_gateway_deployment.hamilton.invoke_url}/hamilton"
 }
