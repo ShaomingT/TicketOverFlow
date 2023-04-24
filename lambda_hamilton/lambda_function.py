@@ -4,20 +4,21 @@ import os
 import psycopg2
 
 # Environment variables from AWS Lambda configuration
-# DB_HOST = os.environ['DB_HOST']
-# DB_NAME = os.environ['DB_NAME']
-# DB_USER = os.environ['DB_USER']
-# DB_PASS = os.environ['DB_PASS']
-# DB_HOST = DB_HOST.split(":")[0]
+DB_HOST = os.environ['DB_HOST']
+DB_NAME = os.environ['DB_NAME']
+DB_USER = os.environ['DB_USER']
+DB_PASS = os.environ['DB_PASS']
+DB_HOST = DB_HOST.split(":")[0]
 
 INPUT_PATH = "/tmp"
 OUTPUT_PATH = "/tmp"
 HAMILTON_PATH = "./bin/hamilton-v1.1.0-linux-amd64"
 
-DB_HOST = "terraform-20230423124358945300000001.cvwf3fikf7zu.us-east-1.rds.amazonaws.com"
-DB_NAME = "ticketoverflow"
-DB_USER = "postgres"
-DB_PASS = "postgres"
+
+# DB_HOST = "terraform-20230423124358945300000001.cvwf3fikf7zu.us-east-1.rds.amazonaws.com"
+# DB_NAME = "ticketoverflow"
+# DB_USER = "postgres"
+# DB_PASS = "postgres"
 # HAMILTON_PATH = "./bin/hamilton-v1.1.0-darwin-arm64"
 
 
@@ -109,7 +110,8 @@ def handler_seating(seating_input, conn):
         svg_seat_num = int(svg_seat_num)
 
     if svg_seat_num is not None and svg_seat_num >= seating_input["seats"]["purchased"]:
-        print(f">> abort: avg_seat_num {svg_seat_num} is not None and  > purchased svg_seat_num {seating_input['seats']['purchased']}")
+        print(
+            f">> abort: avg_seat_num {svg_seat_num} is not None and  > purchased svg_seat_num {seating_input['seats']['purchased']}")
         return {
             "statusCode": 400,
             "body": "no need to update"
@@ -175,6 +177,18 @@ def get_concert_info(concert_id, conn):
 # the input {"event": "ticket",
 #           "id": "[UUID]",}
 def lambda_handler(event, context):
+    print(event)
+    # debug: return all the env para hostdb, hostname, etc
+    # return {
+    #     'statusCode': 200,
+    #     'body': {
+    #         'DB_HOST': DB_HOST,
+    #         'DB_NAME': DB_NAME,
+    #         'DB_PASS': DB_PASS,
+    #         'DB_USERNAME': DB_USER,
+    #     }
+    # }
+
     # try:
     #     body = json.loads(event["body"])
     # except json.JSONDecodeError as e:
