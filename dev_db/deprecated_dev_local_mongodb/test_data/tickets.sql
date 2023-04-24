@@ -1,0 +1,10 @@
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('4f0ba636-0d70-47a8-bd3e-b3288c60e407','198ddd71-5279-4e1c-b492-ea46614b9a73','00000000-0000-0000-0000-000000000008','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('2a54d807-8b13-4e9f-a755-36b58abd30da','198ddd71-5279-4e1c-b492-ea46614b9a73','00000000-0000-0000-0000-000000000003','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('5a0a48ad-dacf-4a23-9b13-75e70435f87a','278d830e-12ad-4348-875c-a9185a3eaafa','00000000-0000-0000-0000-000000000007','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('60d5af24-2039-437e-a76c-5b57da7a4044','5b52956d-d476-40d1-9acd-704465e839be','00000000-0000-0000-0000-000000000010','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('a618c09c-a4a0-418c-a9f6-ee11b849a145','198ddd71-5279-4e1c-b492-ea46614b9a73','00000000-0000-0000-0000-000000000010','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('6822a389-7c1a-4806-90f6-0a66b91fcfeb','981b7e72-c268-4d62-a2ff-a82cb9be4579','00000000-0000-0000-0000-000000000004','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('04c67a5c-5f29-49f4-a6ba-9abfd72cad86','dcccd0e5-532c-4099-a71c-7ddbed0b1a23','00000000-0000-0000-0000-000000000007','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('988103e8-ccb7-4571-b0ea-86929b3a7162','75fdeba8-0d46-4381-ba82-f5c369bd767e','00000000-0000-0000-0000-000000000009','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('6cb2ce8f-5411-40be-ab50-20f3e9fd3ce9','278d830e-12ad-4348-875c-a9185a3eaafa','00000000-0000-0000-0000-000000000001','NOT_PRINTED');
+INSERT INTO tickets(id,concert_id,user_id,print_status) VALUES ('cf34339e-c0d1-4c40-bbe4-d81166a6030f','278d830e-12ad-4348-875c-a9185a3eaafa','00000000-0000-0000-0000-000000000003','NOT_PRINTED');
