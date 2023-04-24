@@ -13,3 +13,7 @@ variable "db_password" {
 variable "lambda_function_payload" {
   default = "../lambda_hamilton/lambda_function_payload.zip"
 }
+
+variable "image_version" {
+    default = "1.0"
+}

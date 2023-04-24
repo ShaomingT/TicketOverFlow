@@ -25,3 +25,16 @@ output "rds_uri" {
 output "api_gateway_endpoint_url" {
   value = "${aws_api_gateway_deployment.hamilton.invoke_url}/hamilton"
 }
+
+
+#output "container_image_concert_url" {
+#    value = "${aws_ecr_repository.concert.repository_url}:latest"
+#}
+#
+#output "container_image_ticket_url" {
+#    value = "${aws_ecr_repository.ticket.repository_url}:latest"
+#}
+#
+#output "container_image_user_url" {
+#    value = "${aws_ecr_repository.user.repository_url}:latest"
+#}

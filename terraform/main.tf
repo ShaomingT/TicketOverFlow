@@ -4,6 +4,10 @@ terraform {
          source = "hashicorp/aws"
          version = "~> 4.0"
       }
+      docker = {
+         source = "kreuzwerker/docker"
+         version = "3.0.2"
+      }
    }
 }
 
@@ -25,5 +29,9 @@ data "aws_subnets" "private" {
       name = "vpc-id"
       values = [data.aws_vpc.default.id]
    }
+}
+
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name = "/ecs/ticketoverflow"
 }
 
