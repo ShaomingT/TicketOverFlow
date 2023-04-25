@@ -104,3 +104,7 @@ https://www.statista.com/statistics/193725/number-of-concerts-and-festivals-prom
 
 so, we don't need a very good vm to run this service. 1vCPU, 1GB RAM is enough.
 
+
+todo
+1. policy based on responce time
+2. maybe needs a sqs.
