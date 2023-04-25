@@ -2,8 +2,8 @@ resource "aws_ecs_task_definition" "concert" {
   family                   = "concert"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = 512
+  memory                   = 1024
   execution_role_arn       = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
@@ -11,8 +11,8 @@ resource "aws_ecs_task_definition" "concert" {
       name         = "concert"
       image        = "${aws_ecr_repository.concert.repository_url}:${var.image_version}"
       essential    = true
-      cpu          = 256
-      memory       = 512
+      cpu          = 512
+      memory       = 1024
       portMappings = [
         {
           containerPort = 7777
@@ -58,8 +58,8 @@ resource "aws_ecs_task_definition" "ticket" {
   family                   = "ticket"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = 512
+  memory                   = 1024
   execution_role_arn       = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
@@ -67,8 +67,8 @@ resource "aws_ecs_task_definition" "ticket" {
       name         = "ticket"
       image        = "${aws_ecr_repository.ticket.repository_url}:${var.image_version}"
       essential    = true
-      cpu          = 256
-      memory       = 512
+      cpu          = 512
+      memory       = 1024
       portMappings = [
         {
           containerPort = 9999
@@ -113,8 +113,8 @@ resource "aws_ecs_task_definition" "user" {
   family                   = "user"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = 512
+  memory                   = 1024
   execution_role_arn       = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
@@ -122,8 +122,8 @@ resource "aws_ecs_task_definition" "user" {
       name         = "user"
       image        = "${aws_ecr_repository.user.repository_url}:${var.image_version}"
       essential    = true
-      cpu          = 256
-      memory       = 512
+      cpu          = 512
+      memory       = 1024
       portMappings = [
         {
           containerPort = 8888

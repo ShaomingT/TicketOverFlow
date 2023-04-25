@@ -15,5 +15,5 @@ variable "lambda_function_payload" {
 }
 
 variable "image_version" {
-    default = "1.15"
+    default = "1.28"
 }

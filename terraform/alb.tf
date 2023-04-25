@@ -20,9 +20,9 @@ resource "aws_lb_target_group" "concert" {
     protocol = "HTTP"
 
     healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 2
-    interval            = 10
+    unhealthy_threshold = 10
+    timeout             = 30
+    interval            = 60
   }
   depends_on = [aws_lb.ticketoverflow]
 }
@@ -39,9 +39,9 @@ resource "aws_lb_target_group" "ticket" {
     protocol = "HTTP"
 
     healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 2
-    interval            = 10
+    unhealthy_threshold = 10
+    timeout             = 30
+    interval            = 60
   }
   depends_on = [aws_lb.ticketoverflow]
 }
@@ -59,9 +59,9 @@ resource "aws_lb_target_group" "user" {
     protocol = "HTTP"
 
     healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 2
-    interval            = 10
+    unhealthy_threshold = 10
+    timeout             = 30
+    interval            = 60
   }
   depends_on = [aws_lb.ticketoverflow]
 }

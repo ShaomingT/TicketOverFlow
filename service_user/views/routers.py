@@ -11,26 +11,26 @@ def health_check():
     try:
         # Check dependencies or other conditions for a healthy service
         # If everything is OK, return a 200 status code with health information
-        process = psutil.Process(os.getpid())
-        memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
-        cpu_usage = process.cpu_percent()
+        # process = psutil.Process(os.getpid())
+        # memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
+        # cpu_usage = process.cpu_percent()
 
         response_data = {
             "healthy": True,
-            "dependencies": [
-                {
-                    "name": "database",
-                    "healthy": True
-                }
-            ],
-            "memoryUsage": f"{memory_usage:.2f}MB",
-            "cpuUsage": f"{cpu_usage:.2f}%"
+            # "dependencies": [
+            #     {
+            #         "name": "database",
+            #         "healthy": True
+            #     }
+            # ],
+            # "memoryUsage": f"{memory_usage:.2f}MB",
+            # "cpuUsage": f"{cpu_usage:.2f}%"
         }
 
         # If the CPU usage is above 98%, return a 500 status code
-        if cpu_usage > 98:
-            current_app.logger.error(f"Health check failed: CPU usage is too high")
-            return jsonify({"error": "Service is not running optimally."}), 503
+        # if cpu_usage > 98:
+        #     current_app.logger.error(f"Health check failed: CPU usage is too high")
+        #     return jsonify({"error": "Service is not running optimally."}), 503
 
         return jsonify(response_data), 200
     except Exception as e:

@@ -86,3 +86,21 @@ docker run --rm -it -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack
 terraform plan -var-file="secret.tfvars"   
 terraform apply -var-file="secret.tfvars"  
 terraform destroy -var-file="secret.tfvars"   
+
+ecs 
+performance
+https://dev.to/kokospapa8/gunicorn-performance-analysis-on-aws-ec2-28jl
+
+
+1. determine the workers 2 * core + 1
+2. determine the threads = core
+3. determine the sql pool worker * thread
+
+performance assumption:
+https://www.statista.com/statistics/193725/number-of-concerts-and-festivals-promoted-by-live-nation-since-2008/
+1. 43,633 event held each year nationally. 119.5 events held each day. 
+2. assume a concert is about 300 people. that is every day, we need to sell 35,850 tickets.
+3. that is every second, we need to sell 0.4 tickets.
+
+so, we don't need a very good vm to run this service. 1vCPU, 1GB RAM is enough.
+

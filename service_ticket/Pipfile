@@ -8,8 +8,8 @@ flask = "*"
 requests = "*"
 gunicorn = "*"
 psutil = "*"
-flask-sqlalchemy = "*"
 psycopg2-binary = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 

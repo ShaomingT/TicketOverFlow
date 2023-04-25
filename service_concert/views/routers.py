@@ -16,26 +16,26 @@ def health_check():
     try:
         # Check dependencies or other conditions for a healthy service
         # If everything is OK, return a 200 status code with health information
-        process = psutil.Process(os.getpid())
-        memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
-        cpu_usage = process.cpu_percent()
+        # process = psutil.Process(os.getpid())
+        # memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
+        # cpu_usage = process.cpu_percent()
 
         response_data = {
             "healthy": True,
-            "dependencies": [
-                {
-                    "name": "database",
-                    "healthy": True
-                }
-            ],
-            "memoryUsage": f"{memory_usage:.2f}MB",
-            "cpuUsage": f"{cpu_usage:.2f}%"
+            # "dependencies": [
+            #     {
+            #         "name": "database",
+            #         "healthy": True
+            #     }
+            # ],
+            # "memoryUsage": f"{memory_usage:.2f}MB",
+            # "cpuUsage": f"{cpu_usage:.2f}%"
         }
 
         # If the CPU usage is above 98%, return a 500 status code
-        if cpu_usage > 98:
-            current_app.logger.error(f"Health check failed: CPU usage is too high")
-            return jsonify({"error": "Service is not running optimally."}), 503
+        # if cpu_usage > 98:
+        #     current_app.logger.error(f"Health check failed: CPU usage is too high")
+        #     return jsonify({"error": "Service is not running optimally."}), 503
 
         return jsonify(response_data), 200
     except Exception as e:
@@ -146,6 +146,7 @@ def create_concert():
     request_hamilton(concert_id)
     # current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     if concert:
         concert.print_status = "PENDING"
         db.session.commit()
@@ -180,6 +181,8 @@ def get_concert_by_id(concert_id):
     # concert_data = current_app.db_concerts.find_one({"id": concert_id},
     #                                                 projection={"_id": 0, "svg": 0, "print_status": 0})
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
+
     if concert:
         concert_data = concert.to_dict(exclude_fields=["svg", "print_status", "svg_seat_num"])
     else:
@@ -198,6 +201,7 @@ def update_concert(concert_id):
 
     # concert_data = current_app.db_concerts.find_one({"id": concert_id})
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     concert_data = concert.to_dict() if concert else None
 
     if not concert_data:
@@ -237,6 +241,7 @@ def update_concert(concert_id):
     # current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
 
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     for key, value in update_data.items():
         setattr(concert, key, value)
     db.session.commit()
@@ -255,6 +260,7 @@ def update_concert(concert_id):
     #                                                    projection={"_id": 0, "svg": 0, "print_status": 0})
     #
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     if concert:
         updated_concert = {attr: getattr(concert, attr) for attr in
                            ['id', 'name', 'venue', 'date', 'capacity', 'status']}
@@ -265,6 +271,7 @@ def update_concert(concert_id):
     request_hamilton(concert_id)
     #    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
     concert = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     if concert:
         concert.print_status = "PENDING"
         db.session.commit()
@@ -275,6 +282,7 @@ def update_concert(concert_id):
 @concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
     concert_data = Concert.query.filter_by(id=concert_id).first()
+    db.session.close()
     if concert_data:
         concert_data = concert_data.to_dict()
 
