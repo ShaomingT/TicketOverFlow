@@ -72,8 +72,13 @@ resource "aws_lb_listener" "ticketoverflow" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_lb_target_group.concert.arn
-    type             = "forward"
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Loadbalancer: Not Found"
+      status_code  = "404"
+    }
   }
 
   depends_on = [
