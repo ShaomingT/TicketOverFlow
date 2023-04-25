@@ -19,6 +19,11 @@ def create_app(config_overrides=None):
 
     app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 5,
+        'pool_recycle': 5 * 60,
+    }
+
     if config_overrides:
         app.config.update(config_overrides)
 

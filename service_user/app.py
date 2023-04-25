@@ -3,6 +3,7 @@ from flask import Flask
 from views.routers import users_blueprint
 from models import db
 import logging
+from sqlalchemy.pool import QueuePool
 
 
 def create_app(config_overrides=None):
@@ -14,6 +15,11 @@ def create_app(config_overrides=None):
 
     app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 5,
+        'pool_recycle': 5 * 60,
+    }
+
     # print all the env variables
     for key, value in environ.items():
         print(f"{key}={value}")
