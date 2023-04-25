@@ -1,7 +1,6 @@
 from os import environ
 from flask import Flask
 from views.routers import users_blueprint
-from flask_sqlalchemy import SQLAlchemy
 from models import db
 import logging
 
@@ -9,9 +8,9 @@ import logging
 def create_app(config_overrides=None):
     app = Flask(__name__)
 
-    gunicorn_error_logger = logging.getLogger('gunicorn.error')
-    app.logger.handlers.extend(gunicorn_error_logger.handlers)
-    app.logger.setLevel(logging.DEBUG)
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -55,4 +54,4 @@ if __name__ == '__main__':
     app = create_app(config_overrides=config_overrides)
 
     app.run(debug=True)
-#ab
+# ab

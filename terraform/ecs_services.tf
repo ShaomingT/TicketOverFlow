@@ -9,6 +9,12 @@ resource "aws_ecs_service" "concert" {
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.concert.arn
+    container_name = "concert"
+    container_port = "7777"
+  }
+  depends_on = [aws_lb_listener.ticketoverflow]
 }
 
 resource "aws_ecs_service" "user" {
@@ -22,6 +28,12 @@ resource "aws_ecs_service" "user" {
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.user.arn
+    container_name = "user"
+    container_port = "8888"
+  }
+  depends_on = [aws_lb_listener.ticketoverflow]
 }
 
 resource "aws_ecs_service" "ticket" {
@@ -35,4 +47,10 @@ resource "aws_ecs_service" "ticket" {
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ticket.arn
+    container_name = "ticket"
+    container_port = "9999"
+  }
+  depends_on = [aws_lb_listener.ticketoverflow]
 }

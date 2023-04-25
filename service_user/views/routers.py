@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, current_app, abort
 from models.user import User
 import os
 import psutil
+import logging
 
 users_blueprint = Blueprint("users", __name__)
 
@@ -40,9 +41,14 @@ def health_check():
 
 @users_blueprint.route("/users", methods=["GET"])
 def get_all_users():
-    users_data = User.query.all()
-    users_data = [user.to_dict() for user in users_data]
-    return jsonify(users_data), 200
+    try:
+        logging.info("Handling request for /api/v1/users")  # Add this line
+        users_data = User.query.all()
+        users_data = [user.to_dict() for user in users_data]
+        return jsonify(users_data), 200
+    except Exception as e:
+        logging.error(f"Error in get_all_users: {e}")  # Add this line
+        return jsonify({"error": "Internal server error./users"}), 500
 
 
 @users_blueprint.route("/users/<string:user_id>", methods=["GET"])
@@ -60,5 +66,3 @@ def get_user_by_id(user_id):
         current_app.logger.info(f"Error getting user by id: {e}")
         # return a json response with an error message and a 500 status code
         return jsonify({"error": "The user does not exist."}), 404
-
-
