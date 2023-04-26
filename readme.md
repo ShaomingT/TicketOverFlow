@@ -108,3 +108,31 @@ so, we don't need a very good vm to run this service. 1vCPU, 1GB RAM is enough.
 todo
 1. policy based on responce time
 2. maybe needs a sqs.
+3. tuning lambda.
+
+
+
+
+q:
+how lagre the database required?
+
+
+trouble shooting:
+sometime, it will cause error as as table 'users' already exists.
+in this case, detroy it then apply again.
+
+
+https://lambda-power-tuning.show/#AAQACMAL;GM7xRj8wikaYoIhG;LlAIOi7OGzp2QGI6
+https://lambda-power-tuning.show/#AAIABAAIwAs=;QeB2Rktm7kWCEIlFj9iIRQ==;Ai0LOZ9kBjk/kBo5IadiOQ==
+
+
+
+----
+│ Error: Error pushing docker image: Error pushing image: Post "https://646645496473.dkr.ecr.us-east-1.amazonaws.com/v2/concert/blobs/uploads/": net/http: TLS handshake timeout
+│ 
+│   with docker_registry_image.concert,
+│   on ecr.tf line 53, in resource "docker_registry_image" "concert":
+│   53: resource "docker_registry_image" "concert" {
+│ 
+╵
+000

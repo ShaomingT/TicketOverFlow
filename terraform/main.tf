@@ -31,4 +31,9 @@ data "aws_subnets" "private" {
    }
 }
 
+#resource "aws_servicequotas_service_quota" "lambda_concurrent" {
+#  quota_code   = "L-B99A9384"
+#  service_code = "lambda"
+#  value        = 1000
+#}
 

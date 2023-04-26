@@ -17,3 +17,11 @@ cd ./lambda_hamilton || exit
 zip -r lambda_function_payload.zip bin/ psycopg2/ lambda_function.py
 cd ..
 echo "> Generated lambda_hamilton/lambda_function_payload.zip"
+echo "Copying credential file to terraform"
+cp ./credentials ./terraform/credentials || exit
+echo "chdir to terraform folder"
+cd ./terraform || exit
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "> Begin depolying..."
+terraform apply -var-file="secret.tfvars" -auto-approve
+echo "Done."
