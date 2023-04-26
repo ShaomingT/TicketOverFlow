@@ -36,5 +36,6 @@ resource "aws_db_parameter_group" "ticketoverflow" {
   parameter {
     name  = "max_connections"
     value = 10000
+    apply_method = "pending-reboot"
   }
 }

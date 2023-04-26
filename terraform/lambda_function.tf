@@ -8,7 +8,7 @@ resource "aws_lambda_function" "hamilton" {
   source_code_hash = base64sha256(filebase64(var.lambda_function_payload))
   runtime          = "python3.9"
   timeout          = "180"
-  memory_size      = "1024"
+  memory_size      = "2048"
 
   environment {
     variables = {

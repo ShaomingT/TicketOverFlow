@@ -24,6 +24,21 @@ conn = psycopg2.connect(
 )
 
 print("init tables..")
+# with conn.cursor() as cursor:
+#     cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users')")
+#     exists = cursor.fetchone()[0]
+#
+# if not exists:
+#     print("Tables do not exist. Initializing..")
+#     # execute the sql file init-db.sql to create the table
+#     with conn.cursor() as cursor:
+#         with open("./database/init-db.sql", "r") as f:
+#             cursor.execute(f.read())
+#         conn.commit()
+# else:
+#     print("Tables already exist. Skipping initialization.")
+
+
 # execute the sql file init-db.sql to create the table
 with conn.cursor() as cursor:
     with open("./database/init-db.sql", "r") as f:
