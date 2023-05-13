@@ -22,7 +22,7 @@ def create_app(config_overrides=None):
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': 2,
         'pool_recycle': 60,
-        'max_overflow': 10
+        'max_overflow': 5
     }
 
     if config_overrides:
