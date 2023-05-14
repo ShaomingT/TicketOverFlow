@@ -248,7 +248,6 @@ def update_concert(concert_id):
         if key not in allowed_updates:
             abort(400, description=f"Invalid field: {key}. Cannot update {key}.")
 
-    # todo check valid of date
     if "date" in update_data:
         if not valid_date(update_data["date"]):
             abort(400, description="Invalid date format. Date should be in YYYY-MM-DD format.")
@@ -268,29 +267,19 @@ def update_concert(concert_id):
             return jsonify({"error": "Capacity should be a integer"}), 400
 
     # Update concert details in the database
-    # current_app.db_concerts.update_one({"id": concert_id}, {"$set": update_data})
 
     concert = Concert.query.filter_by(id=concert_id).first()
-    db.session.close()
     for key, value in update_data.items():
         setattr(concert, key, value)
+
     db.session.commit()
 
-    # remove svg file if it exists in db_concerts
-    # current_app.db_concerts.update_one(
-    #     {"id": concert_id},
-    #     {"$unset": {"svg": ""}}
-    # )
     if concert:
         concert.svg = None
         concert.svg_seat_num = None
         db.session.commit()
 
-    # updated_concert = current_app.db_concerts.find_one({"id": concert_id},
-    #                                                    projection={"_id": 0, "svg": 0, "print_status": 0})
-    #
     concert = Concert.query.filter_by(id=concert_id).first()
-    db.session.close()
     if concert:
         updated_concert = {attr: getattr(concert, attr) for attr in
                            ['id', 'name', 'venue', 'date', 'capacity', 'status']}
@@ -299,9 +288,8 @@ def update_concert(concert_id):
 
     # request  to generate svg
     request_hamilton(concert_id)
-    #    current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
+
     concert = Concert.query.filter_by(id=concert_id).first()
-    db.session.close()
     if concert:
         concert.print_status = "PENDING"
         db.session.commit()
