@@ -21,10 +21,10 @@ output "rds_uri" {
   sensitive = true
   value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.taskoverflow.endpoint}/${aws_db_instance.taskoverflow.db_name}"
 }
-
-output "hamilton_endpoint" {
-  value = "${aws_api_gateway_deployment.hamilton.invoke_url}/hamilton"
-}
+#
+#output "hamilton_endpoint" {
+#  value = "${aws_api_gateway_deployment.hamilton.invoke_url}/hamilton"
+#}
 
 output "user_url" {
   value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1/users"

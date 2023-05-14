@@ -31,10 +31,6 @@ resource "aws_ecs_task_definition" "concert" {
           value = "${local.rds_uri}/ticketoverflow"
         },
         {
-          name  = "SERVICE_HAMILTON_URL"
-          value = local.hamilton_endpoint
-        },
-        {
           name  = "SERVICE_TICKET_URL"
           value = local.ticket_endpoint
         },
@@ -92,10 +88,6 @@ resource "aws_ecs_task_definition" "ticket" {
           value = "${local.rds_uri}/ticketoverflow"
         },
         {
-          name  = "SERVICE_HAMILTON_URL"
-          value = local.hamilton_endpoint
-        },
-        {
           name  = "SERVICE_TICKET_URL"
           value = local.ticket_endpoint
         },
@@ -150,10 +142,6 @@ resource "aws_ecs_task_definition" "user" {
         {
           name  = "SQLALCHEMY_DATABASE_URI"
           value = "${local.rds_uri}/ticketoverflow"
-        },
-        {
-          name  = "SERVICE_HAMILTON_URL"
-          value = local.hamilton_endpoint
         },
         {
           name  = "SERVICE_TICKET_URL"

@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, current_app, request, abort
+from flask import Blueprint, jsonify, current_app, request, abort, Response, make_response
 from models.concert import Concert
 from models.user import User
 from models.ticket import Ticket
@@ -155,7 +155,7 @@ def create_concert():
         db.session.commit()
     # todo: update to db
 
-    return jsonify(concert_response), 200
+    return jsonify(concert_response), 201
 
 
 # def request_hamilton(concert_id):
@@ -294,11 +294,21 @@ def update_concert(concert_id):
         concert.print_status = "PENDING"
         db.session.commit()
 
+    # update all tickets which concert_id = concert_id status in database by sql-alchemy, set the print_status to
+    # "NOT_PRINTED" set svg to None
+    Ticket.query.filter_by(concert_id=concert_id).update({
+        'print_status': 'NOT_PRINTED',
+        'svg': None
+    })
+    db.session.commit()
+
     return jsonify(updated_concert), 200
 
 
 @concerts_blueprint.route("/concerts/<string:concert_id>/seats", methods=["GET"])
 def get_printed_seat(concert_id):
+    if valid_uuid(concert_id) is False:
+        return jsonify({"error": "Invalid concert id"}), 404
     concert_data = Concert.query.filter_by(id=concert_id).first()
     db.session.close()
     if concert_data:
@@ -312,4 +322,20 @@ def get_printed_seat(concert_id):
     if "svg" not in concert_data or concert_data["svg"] is None:
         return jsonify({"error": "The concert does not have a svg file."}), 404
 
-    return concert_data["svg"], 200
+    # Ensure the SVG data is a bytes object, not a str
+    if isinstance(concert_data["svg"], str):
+        svg_data = concert_data["svg"].encode('utf-8')
+    else:
+        svg_data = concert_data["svg"]
+
+    response = make_response(svg_data)
+    response.headers.set('Content-Type', 'image/svg+xml')
+    return response
+
+
+def valid_uuid(uuid_str):
+    try:
+        uuid.UUID(uuid_str)
+        return True
+    except ValueError:
+        return False

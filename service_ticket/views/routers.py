@@ -2,7 +2,7 @@ import traceback
 
 import boto3
 import requests
-from flask import Blueprint, jsonify, request, current_app, abort
+from flask import Blueprint, jsonify, request, current_app, abort, Response, make_response
 from models.ticket import Ticket
 from models.user import User
 from models.concert import Concert
@@ -47,6 +47,14 @@ def health_check():
         return jsonify({"error": "Service is not healthy."}), 500
 
 
+def valid_uuid(uuid_str):
+    try:
+        uuid.UUID(uuid_str)
+        return True
+    except ValueError:
+        return False
+
+
 @tickets_blueprint.route("/tickets", methods=["GET"])
 def get_all_tickets():
     # Check for unknown filter parameters
@@ -73,12 +81,22 @@ def get_all_tickets():
 
     # if no parameters are provided, return all tickets
     if not user_id and not concert_id:
-        # tickets_data = list(current_app.db_tickets.find({}, projection={"_id": 0, "svg": 0}))
-        # tickets = [Ticket(**ticket_data) for ticket_data in tickets_data]
-        # return jsonify([ticket.to_dict() for ticket in tickets]), 200
         tickets = Ticket.query.all()
-        return jsonify(
-            [ticket.to_dict(include_fields=['id', 'concert', 'user', 'print_status']) for ticket in tickets]), 200
+        response_list = []
+        for ticket in tickets:
+            response_list.append({
+                "id": ticket.id,
+                "concert": {
+                    "id": ticket.concert_id,
+                    "url": f"{current_app.config['SERVICE_CONCERT_URL']}/{ticket.concert_id}"
+                },
+                "user": {
+                    "id": ticket.user_id,
+                    "url": f"{current_app.config['SERVICE_USER_URL']}/{ticket.user_id}"
+                },
+                "print_status": ticket.print_status,
+            })
+        return jsonify(response_list), 200
 
     # Build the query based on the parameters
     query = {}
@@ -99,11 +117,11 @@ def get_all_tickets():
             "id": ticket.id,
             "concert": {
                 "id": ticket.concert_id,
-                "url": f"{current_app.config['SERVICE_CONCERT_URL']}/concerts/{ticket.concert_id}"
+                "url": f"{current_app.config['SERVICE_CONCERT_URL']}/{ticket.concert_id}"
             },
             "user": {
                 "id": ticket.user_id,
-                "url": f"{current_app.config['SERVICE_USER_URL']}/users/{ticket.user_id}"
+                "url": f"{current_app.config['SERVICE_USER_URL']}/{ticket.user_id}"
             },
             "print_status": ticket.print_status,
         })
@@ -154,14 +172,15 @@ def create_ticket():
     concert_id = data["concert_id"]
     user_id = data["user_id"]
 
+    # if concert_id or user_id not valid, return 400
+    if not valid_uuid(concert_id) or not valid_uuid(user_id):
+        abort(400, description="concert_id or user_id is not valid")
+
     # Check if concert_id and user_id are provided
     if not all(key in data for key in ("concert_id", "user_id")):
         abort(400, description="concert_id and user_id are required in the request body")
 
     current_app.logger.debug(f"Check the existing of concert {concert_id}, and user {user_id}")
-    # Check if concert and user exist
-    # concert = current_app.db_concerts.find_one({"id": data["concert_id"]})
-    # user = current_app.db_users.find_one({"id": data["user_id"]})
     concert = Concert.query.filter_by(id=data["concert_id"]).first()
     user = User.query.filter_by(id=data["user_id"]).first()
 
@@ -169,30 +188,16 @@ def create_ticket():
         current_app.logger.info("concert or user does not exist")
         abort(400, description="concert or user does not exist")
 
-    # Check if the concert is full
-    # num_tickets_sold = current_app.db_tickets.count_documents({"concert.id": data["concert_id"]})
-    #
-    # # if the number of tickets sold is equal to the maximum capacity of the concert, mark the concert status as SOLD_OUT
-    # if num_tickets_sold >= concert["capacity"]:
-    #     current_app.db_concerts.update_one({"id": concert["id"]}, {"$set": {"status": "SOLD_OUT"}})
-    #     current_app.logger.info("concert is full")
-    #     abort(400, description="concert is full")
     num_tickets_sold = Ticket.query.filter_by(concert_id=data["concert_id"]).count()
 
     if num_tickets_sold >= concert.capacity:
         concert.status = "SOLD_OUT"
         db.session.commit()
         current_app.logger.info("concert is full")
-        abort(400, description="concert is full")
+        abort(422, description="concert is full")
 
     # Create a new ticket with a unique ID and NOT_PRINTED status
     ticket_id = str(uuid.uuid4())
-    # ticket = {
-    #     "id": ticket_id,
-    #     "concert": {"id": data["concert_id"]},
-    #     "user": {"id": data["user_id"]},
-    #     "print_status": "NOT_PRINTED"
-    # }
     ticket = Ticket(
         id=ticket_id,
         concert_id=data["concert_id"],
@@ -200,16 +205,6 @@ def create_ticket():
         print_status="NOT_PRINTED"
     )
 
-    # Insert the ticket into the database
-    # try:
-    #     current_app.db_tickets.insert_one(ticket)
-    #     # update the concert svg in the database
-    #     request_hamilton_concert(concert["id"])
-    #     # update the ocncert's print_status to "PENDING"
-    #     current_app.db_concerts.update_one({"id": concert_id}, {"$set": {"print_status": "PENDING"}})
-    # except Exception as e:
-    #     current_app.logger.error(f"{e}")
-    #     abort(500, description=f"An unknown error occurred: {e}")
     try:
         db.session.add(ticket)
         db.session.commit()
@@ -235,13 +230,15 @@ def create_ticket():
         "print_status": "NOT_PRINTED"
     }
 
-    return jsonify(ticket_response), 200
+    return jsonify(ticket_response), 201
 
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>", methods=["GET"])
 def get_ticket_by_id(ticket_id):
     if ticket_id == "health":
         return health_check()
+    if valid_uuid(ticket_id) is False:
+        return jsonify({"error": "The ticket id is not valid."}), 404
     ticket_data = Ticket.query.filter_by(id=ticket_id).first()
     if ticket_data:
         # ticket_data = ticket_data.to_dict(include_fields=['id', 'concert_id', 'user_id', 'print_status'])
@@ -285,7 +282,7 @@ def request_hamilton(ticket_id):
         # create the message body
         message_body = {
             "event": "ticket",
-            "id": ticket_id
+            "id": str(ticket_id)
         }
         # send the message
         response = sqs.send_message(
@@ -305,7 +302,8 @@ def request_hamilton(ticket_id):
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>/print", methods=["POST"])
 def print_ticket(ticket_id):
-    # try:
+    if valid_uuid(ticket_id) is False:
+        return jsonify({"error": "The ticket id is not valid."}), 404
     # ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
     ticket_data = Ticket.query.filter_by(id=ticket_id).first()
     if not ticket_data:
@@ -327,6 +325,9 @@ def print_ticket(ticket_id):
 
 @tickets_blueprint.route("/tickets/<string:ticket_id>/print", methods=["GET"])
 def get_printed_ticket(ticket_id):
+    # verify ticket_id
+    if valid_uuid(ticket_id) is False:
+        return jsonify({"error": "The ticket id is not valid."}), 404
     # ticket_data = current_app.db_tickets.find_one({"id": ticket_id}, projection={"_id": 0})
     ticket = Ticket.query.filter_by(id=ticket_id).first()
     ticket_data = ticket.to_dict() if ticket else None
@@ -336,4 +337,6 @@ def get_printed_ticket(ticket_id):
     if ticket_data["print_status"] != "PRINTED":
         return jsonify({"error": "The ticket is being pending for printing."}), 404
 
-    return ticket_data["svg"], 200
+    response = make_response(ticket_data["svg"])
+    response.headers.set('Content-Type', 'image/svg+xml')
+    return response
