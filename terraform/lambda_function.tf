@@ -35,3 +35,8 @@ resource "aws_api_gateway_deployment" "hamilton" {
   rest_api_id = aws_api_gateway_rest_api.hamilton.id
   stage_name = "prod"
 }
+
+resource "aws_lambda_event_source_mapping" "hamilon_sqs" {
+  event_source_arn = aws_sqs_queue.hamilton.arn
+  function_name = aws_lambda_function.hamilton.arn
+}

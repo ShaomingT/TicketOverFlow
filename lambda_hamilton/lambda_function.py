@@ -2,6 +2,7 @@ import json
 import subprocess
 import os
 import psycopg2
+import json
 
 # Environment variables from AWS Lambda configuration
 DB_HOST = os.environ['DB_HOST']
@@ -177,6 +178,14 @@ def get_concert_info(concert_id, conn):
 # the input {"event": "ticket",
 #           "id": "[UUID]",}
 def lambda_handler(event, context):
+    print("original event ...")
+    print(event)
+    print("\n\n")
+    print("event['body'] ...")
+    print("len(event['Records'])")
+    print("len(event['Records'])")
+    print("\n\n")
+    event = json.loads(event['Records'][0]['body'])
     print(event)
     # debug: return all the env para hostdb, hostname, etc
     # return {

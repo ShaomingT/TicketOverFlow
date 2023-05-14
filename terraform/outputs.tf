@@ -38,6 +38,10 @@ output "concert_url" {
   value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1/concerts"
 }
 
+output "hamilton_sqs" {
+    value = aws_sqs_queue.hamilton.arn
+}
+
 #output "container_image_concert_url" {
 #    value = "${aws_ecr_repository.concert.repository_url}:latest"
 #}

@@ -1,5 +1,5 @@
 locals {
-  task_cpu = 1024
+  task_cpu    = 1024
   task_memory = 2048
 }
 
@@ -10,6 +10,7 @@ resource "aws_ecs_task_definition" "concert" {
   cpu                      = local.task_cpu
   memory                   = local.task_memory
   execution_role_arn       = data.aws_iam_role.lab.arn
+  task_role_arn            = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
     {
@@ -44,6 +45,10 @@ resource "aws_ecs_task_definition" "concert" {
         {
           name  = "SERVICE_CONCERT_URL"
           value = local.concert_endpoint
+        },
+        {
+          name  = "SQS_QUEUE_URL"
+          value = aws_sqs_queue.hamilton.url
         }
       ]
       logConfiguration = {
@@ -66,6 +71,7 @@ resource "aws_ecs_task_definition" "ticket" {
   cpu                      = local.task_cpu
   memory                   = local.task_memory
   execution_role_arn       = data.aws_iam_role.lab.arn
+  task_role_arn            = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
     {
@@ -121,6 +127,7 @@ resource "aws_ecs_task_definition" "user" {
   cpu                      = local.task_cpu
   memory                   = local.task_memory
   execution_role_arn       = data.aws_iam_role.lab.arn
+  task_role_arn            = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
     {

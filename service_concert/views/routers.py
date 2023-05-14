@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, jsonify, current_app, request, abort
 from models.concert import Concert
 from models.user import User
@@ -8,6 +10,7 @@ import psutil
 import os
 import datetime
 import requests
+import boto3
 
 concerts_blueprint = Blueprint("concerts", __name__)
 
@@ -155,14 +158,41 @@ def create_concert():
     return jsonify(concert_response), 200
 
 
+# def request_hamilton(concert_id):
+#     try:
+#         response = requests.post(
+#             f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
+#                                                                    "id": concert_id})
+#         if response.status_code != 202:
+#             current_app.logger.error(f"Error requesting Hamilton service: {response.json()}")
+#             abort(500, description=f"Error requesting Hamilton service: {response.json()}")
+#     except Exception as e:
+#         current_app.logger.error(f"{e}")
+#         abort(500, description=f"An unknown error occurred: {e}")
+
+
 def request_hamilton(concert_id):
     try:
-        response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
-                                                                   "id": concert_id})
-        if response.status_code != 202:
-            current_app.logger.error(f"Error requesting Hamilton service: {response.json()}")
-            abort(500, description=f"Error requesting Hamilton service: {response.json()}")
+        # create a boto3 client
+        sqs = boto3.client('sqs')
+        # your queue url
+        queue_url = current_app.config['SQS_QUEUE_URL']
+        # create the message body
+        message_body = {
+            "event": "concert",
+            "id": concert_id
+        }
+        # send the message
+        response = sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=json.dumps(message_body),
+            MessageGroupId='CONCERT',  # only needed for FIFO queues
+            MessageDeduplicationId=str(concert_id)  # only needed for FIFO queues
+        )
+
+        # log the message id
+        current_app.logger.info(f"Message sent to Hamilton queue. Message ID: {response['MessageId']}")
+
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")

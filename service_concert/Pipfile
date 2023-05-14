@@ -10,6 +10,7 @@ psutil = "*"
 requests = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
+boto3 = "*"
 
 [dev-packages]
 
