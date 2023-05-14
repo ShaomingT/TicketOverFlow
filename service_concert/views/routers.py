@@ -186,8 +186,6 @@ def request_hamilton(concert_id):
         response = sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=json.dumps(message_body),
-            MessageGroupId='CONCERT',  # only needed for FIFO queues
-            MessageDeduplicationId=str(concert_id)  # only needed for FIFO queues
         )
 
         # log the message id
@@ -224,6 +222,11 @@ def get_concert_by_id(concert_id):
 
 @concerts_blueprint.route("/concerts/<string:concert_id>", methods=["PUT"])
 def update_concert(concert_id):
+    update_data = request.get_json()
+    # if the key includes [capacity, id] cannot be updated, return 400
+    if "capacity" in update_data.keys() or "id" in update_data.keys():
+        abort(400, description="Cannot update capacity or id")
+
     try:
         uuid.UUID(concert_id, version=4)
     except ValueError:
@@ -236,8 +239,6 @@ def update_concert(concert_id):
 
     if not concert_data:
         abort(404, description=f"Concert with id {concert_id} does not exist")
-
-    update_data = request.get_json()
 
     if not update_data:
         abort(400, description="No valid data provided in the request body")

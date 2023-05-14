@@ -152,8 +152,6 @@ def request_hamilton_concert(concert_id):
         response = sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=json.dumps(message_body),
-            MessageGroupId='CONCERT',  # only needed for FIFO queues
-            MessageDeduplicationId=str(concert_id)  # only needed for FIFO queues
         )
 
         # log the message id
@@ -288,8 +286,6 @@ def request_hamilton(ticket_id):
         response = sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=json.dumps(message_body),
-            MessageGroupId='TICKET',  # only needed for FIFO queues
-            MessageDeduplicationId=str(ticket_id)  # only needed for FIFO queues
         )
 
         # log the message id
