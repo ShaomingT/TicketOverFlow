@@ -43,7 +43,7 @@ output "hamilton_sqs" {
 }
 
 output "api_url" {
-  value = "http://${aws_lb.ticketoverflow.dns_name}"
+  value = "http://${aws_lb.ticketoverflow.dns_name}/api/v1"
 }
 
 #output "container_image_concert_url" {

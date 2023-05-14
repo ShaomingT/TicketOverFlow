@@ -5,7 +5,7 @@ echo "|     CSSE6440 CLOUD INFRA ASSIGNMENT     |"
 echo "|          Shaoming Teng, 44660145        |"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "> Before begin to depoly, please make sure the following requirements are met:"
-echo -e "> Please make sure \033[1m\033[31mPython3.10\033[0m, Python library \033[1m\033[31mpsycopg2\033[0m and Docker is installed on local machine, they are used to upload init data to database."
+echo -e "> Please make sure \033[1m\033[31mPython3.10\033[0m, Python library \033[1m\033[31mpsycopg2\033[0m and \033[1m\033[31mDocker\033[0m are installed on local machine, they are used to upload init data to database."
 echo ""
 read -p "Press any key to continue... " -n1 -s
 echo ""
