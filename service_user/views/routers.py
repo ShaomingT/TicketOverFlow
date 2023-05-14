@@ -1,53 +1,35 @@
-from flask import Blueprint, jsonify, current_app, abort
+from flask import Blueprint, jsonify, current_app
 from models.user import User
-import os
-import psutil
 import logging
 
 users_blueprint = Blueprint("users", __name__)
 
 
 def health_check():
+    """
+    Note: 503 code will be automatically returned to client by Flask.
+    :return:
+    """
     try:
-        # Check dependencies or other conditions for a healthy service
-        # If everything is OK, return a 200 status code with health information
-        # process = psutil.Process(os.getpid())
-        # memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
-        # cpu_usage = process.cpu_percent()
-
         response_data = {
             "healthy": True,
-            # "dependencies": [
-            #     {
-            #         "name": "database",
-            #         "healthy": True
-            #     }
-            # ],
-            # "memoryUsage": f"{memory_usage:.2f}MB",
-            # "cpuUsage": f"{cpu_usage:.2f}%"
         }
-
-        # If the CPU usage is above 98%, return a 500 status code
-        # if cpu_usage > 98:
-        #     current_app.logger.error(f"Health check failed: CPU usage is too high")
-        #     return jsonify({"error": "Service is not running optimally."}), 503
-
         return jsonify(response_data), 200
     except Exception as e:
         # If there's an error, return a 503 status code indicating the service is not healthy
         current_app.logger.error(f"Health check failed: {e}")
-        return jsonify({"error": "Service is not healthy."}), 500
+        return jsonify({"error": "Service is not healthy."}), 503
 
 
 @users_blueprint.route("/users", methods=["GET"])
 def get_all_users():
     try:
-        logging.info("Handling request for /api/v1/users")  # Add this line
+        logging.info("Handling request for /api/v1/users")
         users_data = User.query.all()
         users_data = [user.to_dict() for user in users_data]
         return jsonify(users_data), 200
     except Exception as e:
-        logging.error(f"Error in get_all_users: {e}")  # Add this line
+        logging.error(f"Error in get_all_users: {e}")
         return jsonify({"error": "Internal server error./users"}), 500
 
 

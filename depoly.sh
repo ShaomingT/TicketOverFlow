@@ -22,6 +22,14 @@ cp ./credentials ./terraform/credentials || exit
 echo "chdir to terraform folder"
 cd ./terraform || exit
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "> Begin depolying..."
+echo "> Begin deploying..."
 terraform apply -var-file="secret.tfvars" -auto-approve
-echo "Done."
+echo "Deploying Done."
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Fetching API URL..."
+API_URL=$(terraform output -raw api_url)
+echo "API URL: $API_URL"
+# Build a file called api.txt which the URL in it
+echo "$API_URL" > ../api.txt
+cd ..
+echo "Deploying Done. Wait for minutes until everything is set up on cloud."

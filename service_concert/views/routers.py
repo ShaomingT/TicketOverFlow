@@ -2,60 +2,33 @@ import json
 
 from flask import Blueprint, jsonify, current_app, request, abort, Response, make_response
 from models.concert import Concert
-from models.user import User
 from models.ticket import Ticket
 from models import db
 import uuid
-import psutil
-import os
 import datetime
-import requests
 import boto3
 
 concerts_blueprint = Blueprint("concerts", __name__)
 
 
 def health_check():
+    """
+    Note: 503 code will be automatically returned to client by Flask.
+    :return:
+    """
     try:
-        # Check dependencies or other conditions for a healthy service
-        # If everything is OK, return a 200 status code with health information
-        # process = psutil.Process(os.getpid())
-        # memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
-        # cpu_usage = process.cpu_percent()
-
         response_data = {
             "healthy": True,
-            # "dependencies": [
-            #     {
-            #         "name": "database",
-            #         "healthy": True
-            #     }
-            # ],
-            # "memoryUsage": f"{memory_usage:.2f}MB",
-            # "cpuUsage": f"{cpu_usage:.2f}%"
         }
-
-        # If the CPU usage is above 98%, return a 500 status code
-        # if cpu_usage > 98:
-        #     current_app.logger.error(f"Health check failed: CPU usage is too high")
-        #     return jsonify({"error": "Service is not running optimally."}), 503
-
         return jsonify(response_data), 200
     except Exception as e:
         # If there's an error, return a 503 status code indicating the service is not healthy
         current_app.logger.error(f"Health check failed: {e}")
-        return jsonify({"error": "Service is not healthy."}), 500
+        return jsonify({"error": "Service is not healthy."}), 503
 
 
 @concerts_blueprint.route("/concerts", methods=["GET"])
 def get_all_concerts():
-    # get all concerts
-    # concerts_data = current_app.db_concerts.find({}, projection={"_id": 0, "id": 1, "name": 1, "venue": 1, "date": 1,
-    #                                                              "capacity": 1, "status": 1})
-    # concerts = [Concert(**concert_data).to_dict() for concert_data in concerts_data]
-    # return jsonify(concerts), 200
-    #
-    # sqlalchemy sql query to get all concerts, with the field id, name, venue, date, capacity and status
     concerts = Concert.query.all()
     concerts_list = [concert.to_dict() for concert in concerts]
     allowed_fields = {"id", "name", "venue", "date", "capacity", "status"}
@@ -156,19 +129,6 @@ def create_concert():
     # todo: update to db
 
     return jsonify(concert_response), 201
-
-
-# def request_hamilton(concert_id):
-#     try:
-#         response = requests.post(
-#             f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
-#                                                                    "id": concert_id})
-#         if response.status_code != 202:
-#             current_app.logger.error(f"Error requesting Hamilton service: {response.json()}")
-#             abort(500, description=f"Error requesting Hamilton service: {response.json()}")
-#     except Exception as e:
-#         current_app.logger.error(f"{e}")
-#         abort(500, description=f"An unknown error occurred: {e}")
 
 
 def request_hamilton(concert_id):

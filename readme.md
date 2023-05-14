@@ -1,3 +1,38 @@
+# CSSE6400 CLOUD INFRASTRUCTURE ASSIGNMENT
+Student Name: Shaoming Teng
+Student Number: 44660145
+
+## Dependencies
+Before deploying, make sure that you have installed the following dependencies:
+- Python 3.10
+- Terraform 1.4.6
+- Psycopg2 2.9.1
+- pipenv
+- Docker
+
+## Deployment
+1. Fill `credentials` file.
+2. Run `./deoply.sh` to deploy the infrastructure.
+
+## Troubleshoot
+###  Table "Users" already exists
+`terroform destroy` and deploy again
+
+###  Error Pushing docker
+Sometime, an error like below will happen
+```
+│ Error: Error pushing docker image: Error pushing image: Post "https://646645496473.dkr.ecr.us-east-1.amazonaws.com/v2/concert/blobs/uploads/": net/http: TLS handshake timeout
+│ 
+│   with docker_registry_image.concert,
+│   on ecr.tf line 53, in resource "docker_registry_image" "concert":
+│   53: resource "docker_registry_image" "concert" {
+│ 
+╵
+```
+In this case, change current directory to `./terraform` and run `terraform apply -var-file="secret.tfvars" -auto-approve` again.
+
+
+
 
 Dependencies
 Python3.10 

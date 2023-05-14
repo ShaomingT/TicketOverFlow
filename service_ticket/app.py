@@ -50,17 +50,10 @@ def wsgi_app(environ, start_response):
 
 if __name__ == '__main__':
     # Override the SQLALCHEMY_DATABASE_URI configuration for the development environment.
-    config_overrides = {
-        'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:postgres@localhost:5432/ticketoverflow',
-        'SERVICE_USER_URL': 'http://localhost:8888/api/v1/users',
-        'SERVICE_CONCERT_URL': 'http://localhost:7777/api/v1/concerts',
-        'SERVICE_TICKET_URL': 'http://localhost:9999/api/v1/tickets',
-        'SERVICE_HAMILTON_URL': 'http://localhost:6666/api/v1/hamilton'
-    }
+    config_overrides = {}
     # Create the Flask application instance with the configuration overrides.
     app = create_app(config_overrides=config_overrides)
     app.logger.setLevel(logging.DEBUG)
 
     app.app_context().push()
     app.run(debug=True, port=9999)
-# ab
