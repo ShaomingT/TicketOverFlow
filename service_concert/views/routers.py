@@ -140,7 +140,7 @@ def request_hamilton(concert_id):
         # create the message body
         message_body = {
             "event": "concert",
-            "id": concert_id
+            "id": str(concert_id)
         }
         # send the message
         response = sqs.send_message(
