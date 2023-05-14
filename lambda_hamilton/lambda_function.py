@@ -110,7 +110,7 @@ def handler_seating(seating_input, conn):
     if svg_seat_num is not None:
         svg_seat_num = int(svg_seat_num)
 
-    if svg_seat_num is not None and svg_seat_num >= seating_input["seats"]["purchased"]:
+    if svg_seat_num is not None and svg_seat_num > seating_input["seats"]["purchased"]:
         print(
             f">> abort: avg_seat_num {svg_seat_num} is not None and  > purchased svg_seat_num {seating_input['seats']['purchased']}")
         return {
@@ -247,7 +247,7 @@ def lambda_handler(event, context):
             print(">> svg_seat_num is None, continue processing ")
             return handler_seating(concert_info, conn)
             # if the svg_Seat_num is greater than purchased_count, return 400
-        if svg_seat_num >= concert_info["seats"]["purchased"]:
+        if svg_seat_num > concert_info["seats"]["purchased"]:
             print(f">> abort: svg_seat_num = {svg_seat_num} > purchased_count = {concert_info['seats']['purchased']}")
             return {
                 'statusCode': 400,

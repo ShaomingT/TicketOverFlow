@@ -4,7 +4,7 @@ import os
 
 class BaseCase(unittest.TestCase):
     def host(self):
-        base = os.environ.get('TEST_HOST', 'http://ticketoverflow-1558203388.us-east-1.elb.amazonaws.com/api/v1')
+        base = os.environ.get('TEST_HOST', 'http://ticketoverflow-1387719013.us-east-1.elb.amazonaws.com/api/v1')
         if base[-1] == '/':
             return base[:-1]
         return base

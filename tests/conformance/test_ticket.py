@@ -98,7 +98,7 @@ class TestTicket(BaseCase):
                 'url': self.host() + '/concerts/' + concert_id,
             },
             'print_status': 'NOT_PRINTED',
-        }, response.json(),)
+        }, response.json(), )
 
     def test_get_ticket_with_invalid_id(self):
         response = requests.get(self.host() + '/tickets/invalid_ticket_id')
@@ -310,3 +310,53 @@ class TestTicket(BaseCase):
 
         response = requests.get(self.host() + '/tickets/' + ticket_id + '/print')
         self.assertEqual(404, response.status_code)
+
+    def test_create_ticket_with_unexist_user_id(self):
+        concert_id = self.createConcert()
+        response = requests.post(self.host() + '/tickets', json={
+            'user_id': '00000000-0020-0000-0000-000000000012',
+            'concert_id': concert_id,
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_check_returned_keys(self):
+        """
+        the returned structure should be like
+{
+    "id": "a4c5211f-2402-4de9-9664-b9e78454da35",
+    "concert": {
+        "id": "786d3bb4-a858-49ba-8803-15ffa2ec3678",
+        "url": "http://tickets.api.ticketoverflow.com/api/v1/concerts/786d3bb4-a858-49ba-8803-15ffa2ec3678"
+    },
+    "user": {
+        "id": "e571964f-f2b7-4200-9fb0-2af749092fa1",
+        "url": "http://tickets.api.ticketoverflow.com/api/v1/users/e571964f-f2b7-4200-9fb0-2af749092fa1"
+    },
+    "print_status": "NOT_PRINTED"
+}
+        no extra keys should be returned
+        :return:
+        """
+
+        # create a ticket
+        concert_id = self.createConcert()
+        response = requests.post(self.host() + '/tickets', json={
+            'user_id': self.user_id,
+            'concert_id': concert_id,
+        })
+        self.assertEqual(201, response.status_code)
+        # check the returned keys of response.json()
+        self.assertEqual(4, len(response.json()))
+        ticket_id = response.json()['id']
+
+        # get the ticket
+        response = requests.get(self.host() + '/tickets/' + ticket_id)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(4, len(response.json()))
+        self.assertIn('id', response.json())
+        self.assertIn('concert', response.json())
+        self.assertIn('user', response.json())
+        self.assertIn('print_status', response.json())
+
+
+

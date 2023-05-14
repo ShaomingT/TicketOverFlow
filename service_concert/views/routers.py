@@ -248,12 +248,8 @@ def update_concert(concert_id):
         updated_concert = None
 
     # request  to generate svg
+    db.session.commit()
     request_hamilton(concert_id)
-
-    concert = Concert.query.filter_by(id=concert_id).first()
-    if concert:
-        concert.print_status = "PENDING"
-        db.session.commit()
 
     # update all tickets which concert_id = concert_id status in database by sql-alchemy, set the print_status to
     # "NOT_PRINTED" set svg to None

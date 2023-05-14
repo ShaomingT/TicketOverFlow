@@ -41,6 +41,34 @@ class TestUser(BaseCase):
             self.assertEqual('application/json', response.headers['Content-Type'])
             self.assertEqual(user, response.json())
 
+    def test_user_get_invalid_id(self):
+        """
+        Tests getting a specific user with an invalid id
+        """
+        response = requests.get(self.host() + '/users/invalid-id', headers={'Accept': 'application/json'})
+        self.assertEqual(404, response.status_code)
+
+    def test_user_get_valid_id(self):
+        """
+        {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "name": "Ms. Jailyn Reichert MD",
+            "email": "elbert@example.org"
+        },
+
+        :return:
+        """
+        response = requests.get(self.host() + '/users/00000000-0000-0000-0000-000000000001',
+                                headers={'Accept': 'application/json'})
+        self.assertEqual(200, response.status_code)
+
+        # it only has three keys, id, name and email
+        self.assertEqual(3, len(response.json()))
+        self.assertEqual('00000000-0000-0000-0000-000000000001', response.json()['id'])
+        self.assertEqual('Ms. Jailyn Reichert MD', response.json()['name'])
+        self.assertEqual('elbert@example.org', response.json()['email'])
+
+
     def test_user_get_not_found(self):
         """
         Tests getting a specific user

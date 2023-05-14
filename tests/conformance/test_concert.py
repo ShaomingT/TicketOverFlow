@@ -350,7 +350,7 @@ class TestConcert(BaseCase):
 
         response = requests.post(self.host() + '/tickets/' + ticket_id + '/print')
         self.assertEqual(202, response.status_code)
-        
+
         response = requests.get(self.host() + '/tickets/' + ticket_id)
         status = response.json()['print_status']
         self.assertIn(status, ['PRINTED', 'PENDING'])
@@ -384,3 +384,289 @@ class TestConcert(BaseCase):
 
         response = requests.get(self.host() + '/tickets/' + ticket_id + '/print')
         self.assertEqual(404, response.status_code)
+
+    def test_update_concert_influence_tickets(self):
+        """
+        Update a concert and check that the tickets are updated
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json=self.example)
+        self.assertEqual(201, response.status_code)
+        concert = response.json()
+
+        tickets = []
+        # Buy 5 tickets for the concert and print them
+        for i in range(0, 2):
+            response = requests.post(self.host() + '/tickets', json={
+                'user_id': '00000000-0000-0000-0000-000000000001',
+                'concert_id': concert['id'],
+            })
+            self.assertEqual(201, response.status_code)
+            ticket_id = response.json()['id']
+            tickets.append(response.json())
+            response = requests.post(self.host() + '/tickets/' + ticket_id + '/print')
+            self.assertEqual(202, response.status_code)
+            # save the ticket in tickets
+
+        print(tickets)
+        # Loop for up to 50 seconds until all tickets are printed
+        start_time = time.time()
+        while time.time() - start_time < 50:
+            all_printed = True
+            for ticket in tickets:
+                response = requests.get(self.host() + '/tickets/' + ticket['id'])
+                self.assertEqual(200, response.status_code)
+                ticket_status = response.json()['print_status']
+                if ticket_status != 'PRINTED':
+                    all_printed = False
+                    break
+            if all_printed:
+                print("All tickets printed.")
+                break
+            time.sleep(1)  # Wait a second before checking again
+
+        # updated the concert
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'status': 'CANCELLED'
+        })
+
+        # check that tickets' print_status is NOT_PRINTED
+        for ticket in tickets:
+            response = requests.get(self.host() + '/tickets/' + ticket['id'])
+            print("\n\n")
+            print(response.json())
+            self.assertEqual(200, response.status_code)
+            self.assertEqual('NOT_PRINTED', response.json()['print_status'])
+
+    def test_no_extra_keys(self):
+        """
+        Response only contain key:
+        id, name, venue, date, capacity, status, status
+        :param self:
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json=self.example)
+        self.assertEqual(201, response.status_code)
+        self.assertDictSubset(self.example, response.json())
+        concert = response.json()
+        self.assertEqual(len(concert), 6)
+        valid_keys = ['id', 'name', 'venue', 'date', 'capacity', 'status']
+        for key in concert:
+            self.assertIn(key, valid_keys)
+
+    def test_create_new_concert_with_extra_values(self):
+        """
+        Create a new concert with name, venue, date, capacity, status, invalid_field
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 100,
+            'status': 'OPEN',
+            'invalid_field': 'test'
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_create_with_missing_value(self):
+        """
+        Create a new concert with name, venue, date, capacity, status, invalid_field
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 100,
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_create_with_invalid_value(self):
+        """
+        build 6 request with invalid value in each field.
+        Fields:" id, name, venue, date, capacity, status
+        :return:
+        """
+        # invalid id
+        response = requests.post(self.host() + '/concerts', json={
+            'id': 'invalid_id',
+            'name': 'test',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 100,
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_create_with_invalid_date(self):
+        """
+        :return:
+        """
+        # invalid id
+        response = requests.post(self.host() + '/concerts', json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2018-01-01 00:00:00',
+            'capacity': 100,
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.post(self.host() + '/concerts', json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2022-00-01',
+            'capacity': 100,
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.post(self.host() + '/concerts', json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2022-30-12',
+            'capacity': 100,
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_update_invalid_field(self):
+        """
+        invalids filed are concert_id, and capacity
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json=self.example)
+        self.assertEqual(201, response.status_code)
+        concert = response.json()
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': 'test',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 100,
+            'status': 'ACTIVE',
+            'invalid_field': 'test'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'id': '00000000-0000-0000-0000-000000000001'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'capacity': 100
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'date': '2018-01-01 00:00:00'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'date': '2022-00-01'
+        })
+        self.assertEqual(400, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'status': 'INVALID_STATUS'
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_update_with_valid_status(self):
+        """
+        :return:
+        """
+        response = requests.post(self.host() + '/concerts', json=self.example)
+        self.assertEqual(201, response.status_code)
+        concert = response.json()
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'status': 'CANCELLED'
+        })
+        self.assertEqual(200, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(200, response.status_code)
+
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'status': 'SOLD_OUT'
+        })
+        self.assertEqual(200, response.status_code)
+
+    def test_update_with_unexist_id(self):
+        """
+        :return:
+        """
+        response = requests.put(self.host() + '/concerts/00000000-0000-0000-0000-000000000001', json={
+            'status': 'CANCELLED'
+        })
+        self.assertEqual(404, response.status_code)
+
+    ### SEATING GENERATION TESTS
+    def test_svg_create_order_test(self):
+        # create a concert with 10 seats
+        response = requests.post(self.host() + '/concerts', json={
+            'name': '10 Seats',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 10,
+            'status': 'ACTIVE'
+        })
+
+        self.assertEqual(201, response.status_code)
+
+        # create 9 tickets in this concert
+        concert = response.json()
+        for i in range(5):
+            response = requests.post(self.host() + '/tickets', json={
+                'user_id': "00000000-0000-0000-0000-000000000003",
+                'concert_id': concert['id'],
+            })
+            self.assertEqual(201, response.status_code)
+
+    def test_svg_change_concert_info(self):
+        # create a concert with 10 seats
+        response = requests.post(self.host() + '/concerts', json={
+            'name': '10 Seats',
+            'venue': 'test',
+            'date': '2018-01-01',
+            'capacity': 10,
+            'status': 'ACTIVE'
+        })
+        self.assertEqual(201, response.status_code)
+
+        # change name of concert
+        concert = response.json()
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': '1 Seats'
+        })
+        self.assertEqual(200, response.status_code)
+
+        concert = response.json()
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': '1 Seats'
+        })
+        self.assertEqual(200, response.status_code)
+
+        concert = response.json()
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': '2 Seats'
+        })
+        self.assertEqual(200, response.status_code)
+
+        concert = response.json()
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': '3 Seats'
+        })
+        self.assertEqual(200, response.status_code)
+
+        concert = response.json()
+        response = requests.put(self.host() + '/concerts/' + concert['id'], json={
+            'name': '4 Seats'
+        })
+        self.assertEqual(200, response.status_code)
