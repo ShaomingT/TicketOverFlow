@@ -1,4 +1,9 @@
 
+Dependencies
+Python3.10 
+psgocg2
+Docker
+
 [] service_user helath, how to test 503 and 500
 
 # testing

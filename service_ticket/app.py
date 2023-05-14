@@ -16,6 +16,7 @@ def create_app(config_overrides=None):
     app.config['SERVICE_CONCERT_URL'] = environ.get("SERVICE_CONCERT_URL")
     app.config['SERVICE_TICKET_URL'] = environ.get("SERVICE_TICKET_URL")
     app.config['SERVICE_HAMILTON_URL'] = environ.get("SERVICE_HAMILTON_URL")
+    app.config['SQS_QUEUE_URL'] = environ.get("SQS_QUEUE_URL")
 
     app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

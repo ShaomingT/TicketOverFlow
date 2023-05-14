@@ -106,6 +106,10 @@ resource "aws_ecs_task_definition" "ticket" {
         {
           name  = "SERVICE_CONCERT_URL"
           value = local.concert_endpoint
+        },
+        {
+          name  = "SQS_QUEUE_URL"
+          value = aws_sqs_queue.hamilton.url
         }
       ]
       logConfiguration = {
@@ -162,6 +166,10 @@ resource "aws_ecs_task_definition" "user" {
         {
           name  = "SERVICE_CONCERT_URL"
           value = local.concert_endpoint
+        },
+        {
+          name  = "SQS_QUEUE_URL"
+          value = aws_sqs_queue.hamilton.url
         }
       ]
       logConfiguration = {

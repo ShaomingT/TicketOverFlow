@@ -1,5 +1,6 @@
 import traceback
 
+import boto3
 import requests
 from flask import Blueprint, jsonify, request, current_app, abort
 from models.ticket import Ticket
@@ -7,6 +8,7 @@ from models.user import User
 from models.concert import Concert
 from models import db
 import uuid
+import json
 import psutil
 import os
 
@@ -108,11 +110,37 @@ def get_all_tickets():
     return jsonify(response_list), 200
 
 
+# def request_hamilton_concert(concert_id):
+#     try:
+#         response = requests.post(
+#             f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
+#                                                                    "id": str(concert_id)})
+#     except Exception as e:
+#         current_app.logger.error(f"{e}")
+#         abort(500, description=f"An unknown error occurred: {e}")
+
 def request_hamilton_concert(concert_id):
     try:
-        response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={"event": "concert",
-                                                                   "id": str(concert_id)})
+        # create a boto3 client
+        sqs = boto3.client('sqs')
+        # your queue url
+        queue_url = current_app.config['SQS_QUEUE_URL']
+        # create the message body
+        message_body = {
+            "event": "concert",
+            "id": str(concert_id)
+        }
+        # send the message
+        response = sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=json.dumps(message_body),
+            MessageGroupId='CONCERT',  # only needed for FIFO queues
+            MessageDeduplicationId=str(concert_id)  # only needed for FIFO queues
+        )
+
+        # log the message id
+        current_app.logger.info(f"Message sent to Hamilton queue. Message ID: {response['MessageId']}")
+
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")
@@ -237,13 +265,39 @@ def get_ticket_by_id(ticket_id):
 
 #################################################################
 
+# def request_hamilton(ticket_id):
+#     try:
+#         response = requests.post(
+#             f"{current_app.config['SERVICE_HAMILTON_URL']}", json={
+#                 "event": "ticket",
+#                 "id": str(ticket_id)
+#             })
+#     except Exception as e:
+#         current_app.logger.error(f"{e}")
+#         abort(500, description=f"An unknown error occurred: {e}")
+
 def request_hamilton(ticket_id):
     try:
-        response = requests.post(
-            f"{current_app.config['SERVICE_HAMILTON_URL']}", json={
-                "event": "ticket",
-                "id": str(ticket_id)
-            })
+        # create a boto3 client
+        sqs = boto3.client('sqs')
+        # your queue url
+        queue_url = current_app.config['SQS_QUEUE_URL']
+        # create the message body
+        message_body = {
+            "event": "ticket",
+            "id": ticket_id
+        }
+        # send the message
+        response = sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=json.dumps(message_body),
+            MessageGroupId='TICKET',  # only needed for FIFO queues
+            MessageDeduplicationId=str(ticket_id)  # only needed for FIFO queues
+        )
+
+        # log the message id
+        current_app.logger.info(f"Message sent to Hamilton queue. Message ID: {response['MessageId']}")
+
     except Exception as e:
         current_app.logger.error(f"{e}")
         abort(500, description=f"An unknown error occurred: {e}")

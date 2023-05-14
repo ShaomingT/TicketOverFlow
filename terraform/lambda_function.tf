@@ -36,7 +36,8 @@ resource "aws_api_gateway_deployment" "hamilton" {
   stage_name = "prod"
 }
 
-resource "aws_lambda_event_source_mapping" "hamilon_sqs" {
+resource "aws_lambda_event_source_mapping" "hamilton_sqs" {
   event_source_arn = aws_sqs_queue.hamilton.arn
   function_name = aws_lambda_function.hamilton.arn
+  batch_size = 1
 }

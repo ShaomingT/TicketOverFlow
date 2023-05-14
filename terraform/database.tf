@@ -3,7 +3,7 @@ resource "aws_db_instance" "taskoverflow" {
   max_allocated_storage  = 1000
   engine                 = "postgres"
   engine_version         = "14"
-  instance_class         = "db.t4g.micro"
+  instance_class         = "db.t4g.medium"
   db_name                = "ticketoverflow"
   username               = var.db_username
   password               = var.db_password

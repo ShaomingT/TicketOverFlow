@@ -178,12 +178,12 @@ def get_concert_info(concert_id, conn):
 # the input {"event": "ticket",
 #           "id": "[UUID]",}
 def lambda_handler(event, context):
-    print("original event ...")
+    print("original event:")
     print(event)
     print("\n\n")
-    print("event['body'] ...")
+    print("event['body']:")
     print("len(event['Records'])")
-    print("len(event['Records'])")
+    print(len(event['Records']))
     print("\n\n")
     event = json.loads(event['Records'][0]['body'])
     print(event)

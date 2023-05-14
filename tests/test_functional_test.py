@@ -188,6 +188,7 @@ def test_get_concert_by_id():
 
 
 def test_modify_concerts():
+    print("\n")
 # test modify all fields
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
     #create_a_concert
@@ -201,9 +202,9 @@ def test_modify_concerts():
     assert response.status_code == 200
     # get the id of the concert
     concert_id = response.json()['id']
+    print(concert_id)
 
     # get the id of the concert
-
     response = requests.put(f"{CURR_URLS['concert']}/{concert_id}", headers=headers, json={
         "name": "Concert 2",
         "date": "2020-10-15",
@@ -211,6 +212,7 @@ def test_modify_concerts():
         "capacity": 123,
         "status": "CANCELLED"
     })
+    print(response.content)
 
     assert response.status_code == 200
     assert response.json()['name'] == 'Concert 2'
