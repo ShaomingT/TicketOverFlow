@@ -25,7 +25,7 @@ class TestConcert(BaseCase):
         """
         timeout = time.time() + (60 * timeout) + 30  # 30 seconds to account for the time it takes to test the output
         while time.time() <= timeout:
-            response = requests.get(self.host() + '/concerts/s' + concert_id + '/seats')
+            response = requests.get(self.host() + '/concerts/' + concert_id + '/seats')
 
             if time.time() > timeout:
                 self.fail("Seating plan was not available in time")
