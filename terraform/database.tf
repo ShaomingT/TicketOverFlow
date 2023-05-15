@@ -31,11 +31,11 @@ resource "aws_db_parameter_group" "ticketoverflow" {
 
   parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = 30000
+    value = 60000
   }
   parameter {
     name  = "max_connections"
-    value = 10000
+    value = 15000
     apply_method = "pending-reboot"
   }
 }
