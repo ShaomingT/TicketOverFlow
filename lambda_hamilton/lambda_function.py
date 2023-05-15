@@ -15,14 +15,8 @@ INPUT_PATH = "/tmp"
 OUTPUT_PATH = "/tmp"
 HAMILTON_PATH = "./bin/hamilton-v1.1.0-linux-amd64"
 
-
-# DB_HOST = "terraform-20230423124358945300000001.cvwf3fikf7zu.us-east-1.rds.amazonaws.com"
-# DB_NAME = "ticketoverflow"
-# DB_USER = "postgres"
-# DB_PASS = "postgres"
-# HAMILTON_PATH = "./bin/hamilton-v1.1.0-darwin-arm64"
-
 pre_data = {}
+
 
 def connect_to_db():
     conn = psycopg2.connect(
@@ -73,7 +67,6 @@ def handler_ticket(ticket_input, conn):
     # change the print_Status to "PRINTED"
     cur.execute(f"UPDATE tickets SET print_status = 'PRINTED' WHERE id = '{ticket_id}'")
     conn.commit()
-    conn.close()
     return {
         "statusCode": 200,
         "body": svg_content,
@@ -129,22 +122,18 @@ def handler_seating(seating_input, conn):
     # if pre_data['name'], pre_data['name'], pre_data['date'], pre_data['venue']
     # pre_data['seats']['max'], pre_data['seats']['purchased'] are not the same as _data's abort
     if pre_data['name'] != _data['name'] or pre_data['date'] != _data['date'] or pre_data['venue'] != _data[
-        'venue'] or pre_data['seats']['max'] != _data['seats']['max'] or pre_data['seats']['purchased'] != _data[
-        'seats']['purchased']:
+        'venue'] or pre_data['seats']['max'] != _data['seats']['max']:
         print(f">> abort: data is not the same")
         return {
             "statusCode": 400,
             "body": "no need to update"
         }
 
-
-
     cur = conn.cursor()
     cur.execute(f"UPDATE concerts SET svg_seat_num = '{seating_input['seats']['purchased']}' WHERE id = '{seating_id}'")
     # update svg_content to svg field in table concerts
     cur.execute(f"UPDATE concerts SET svg = '{svg_content}' WHERE id = '{seating_id}'")
     conn.commit()
-    conn.close()
 
     return {
         "statusCode": 200,
@@ -208,31 +197,6 @@ def lambda_handler(event, context):
     print("\n\n")
     event = json.loads(event['Records'][0]['body'])
     print(event)
-    # debug: return all the env para hostdb, hostname, etc
-    # return {
-    #     'statusCode': 200,
-    #     'body': {
-    #         'DB_HOST': DB_HOST,
-    #         'DB_NAME': DB_NAME,
-    #         'DB_PASS': DB_PASS,
-    #         'DB_USERNAME': DB_USER,
-    #     }
-    # }
-
-    # try:
-    #     body = json.loads(event["body"])
-    # except json.JSONDecodeError as e:
-    #     return {
-    #         'statusCode': 400,
-    #         'body': json.dumps({"error": f"Invalid JSON: {str(e)}"}),
-    #         'headers': {
-    #             'Content-Type': 'application/json'
-    #         }
-    #     }
-    # # body = event['body']
-    #
-    # event_name = body["event"]
-    # _id = body["id"]
     event_name = event["event"]
     _id = event["id"]
 
@@ -281,9 +245,11 @@ def lambda_handler(event, context):
                     'Content-Type': 'application/json'
                 }
             }
+        res = handler_seating(concert_info, conn)
+        conn.close()
+        return res
 
-        return handler_seating(concert_info, conn)
-
+    conn.close()
     return {
         'statusCode': 404,
         'body': json.dumps({"error": f"Invalid UUID"}),
