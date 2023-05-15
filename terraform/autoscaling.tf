@@ -68,5 +68,4 @@ resource "aws_appautoscaling_policy" "connection_count" {
     scale_in_cooldown  = 240
     scale_out_cooldown = 90
   }
-
-}}
+}
