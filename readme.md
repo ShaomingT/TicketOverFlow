@@ -6,9 +6,11 @@ Student Number: 44660145
 Before deploying, make sure that you have installed the following dependencies:
 - Python 3.10
 - Terraform 1.4.6
+- zip
 - Psycopg2 2.9.1
 - pipenv
 - Docker
+- registry.terraform.io/kreuzwerker/docker
 
 ## Deployment
 1. Fill `credentials` file.
