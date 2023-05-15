@@ -1,10 +1,10 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE tickets (
+CREATE TABLE IF NOT EXISTS tickets (
   id UUID PRIMARY KEY,
   concert_id UUID NOT NULL,
   user_id UUID NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE tickets (
   svg TEXT
 );
 
-CREATE TABLE concerts (
+CREATE TABLE IF NOT EXISTS concerts (
   id UUID PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   venue VARCHAR(255) NOT NULL,

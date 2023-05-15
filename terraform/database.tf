@@ -31,7 +31,7 @@ resource "aws_db_parameter_group" "ticketoverflow" {
 
   parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = 60000
+    value = 30000
   }
   parameter {
     name  = "max_connections"

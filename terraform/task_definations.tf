@@ -64,8 +64,8 @@ resource "aws_ecs_task_definition" "ticket" {
   family                   = "ticket"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = local.task_cpu
-  memory                   = local.task_memory
+  cpu                      = 2048
+  memory                   = 4096
   execution_role_arn       = data.aws_iam_role.lab.arn
   task_role_arn            = data.aws_iam_role.lab.arn
 
@@ -74,8 +74,8 @@ resource "aws_ecs_task_definition" "ticket" {
       name         = "ticket"
       image        = "${aws_ecr_repository.ticket.repository_url}:${var.image_version}"
       essential    = true
-      cpu          = local.task_cpu
-      memory       = local.task_memory
+      cpu          = 2048
+      memory       = 4096
       portMappings = [
         {
           containerPort = 9999

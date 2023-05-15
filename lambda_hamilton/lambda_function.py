@@ -22,6 +22,7 @@ HAMILTON_PATH = "./bin/hamilton-v1.1.0-linux-amd64"
 # DB_PASS = "postgres"
 # HAMILTON_PATH = "./bin/hamilton-v1.1.0-darwin-arm64"
 
+pre_data = {}
 
 def connect_to_db():
     conn = psycopg2.connect(
@@ -83,6 +84,7 @@ def handler_ticket(ticket_input, conn):
 
 
 def handler_seating(seating_input, conn):
+    global pre_data
     seating_id = seating_input["id"]
     input_path = f"{INPUT_PATH}/{seating_id}.json"
     output_path = f"{OUTPUT_PATH}/{seating_id}"
@@ -120,6 +122,23 @@ def handler_seating(seating_input, conn):
 
     # update svg_seat_num in concerts table
     print(f">> update dase")
+    # check the latest data
+    _data = get_concert_info(seating_id, conn)
+    print("\n_pre_data", pre_data)
+    print("\n_data", _data)
+    # if pre_data['name'], pre_data['name'], pre_data['date'], pre_data['venue']
+    # pre_data['seats']['max'], pre_data['seats']['purchased'] are not the same as _data's abort
+    if pre_data['name'] != _data['name'] or pre_data['date'] != _data['date'] or pre_data['venue'] != _data[
+        'venue'] or pre_data['seats']['max'] != _data['seats']['max'] or pre_data['seats']['purchased'] != _data[
+        'seats']['purchased']:
+        print(f">> abort: data is not the same")
+        return {
+            "statusCode": 400,
+            "body": "no need to update"
+        }
+
+
+
     cur = conn.cursor()
     cur.execute(f"UPDATE concerts SET svg_seat_num = '{seating_input['seats']['purchased']}' WHERE id = '{seating_id}'")
     # update svg_content to svg field in table concerts
@@ -178,6 +197,8 @@ def get_concert_info(concert_id, conn):
 # the input {"event": "ticket",
 #           "id": "[UUID]",}
 def lambda_handler(event, context):
+    global pre_data
+
     print("original event:")
     print(event)
     print("\n\n")
@@ -235,6 +256,10 @@ def lambda_handler(event, context):
     elif event_name == "concert":
         print(">> concert event")
         concert_info = get_concert_info(_id, conn)
+        # copy concert_info to pre_data
+        pre_data = concert_info.copy()
+        print(">> pre_data:")
+        print(pre_data)
         # get svg_seat_num from concerts table, only one value will be fetch
         cur = conn.cursor()
         cur.execute(f"SELECT svg_seat_num FROM concerts WHERE id = '{_id}'")
@@ -261,7 +286,7 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 404,
-        'body': json.dumps({"error": f"Invalid UUID: {str(e)}"}),
+        'body': json.dumps({"error": f"Invalid UUID"}),
         'headers': {
             'Content-Type': 'application/json'
         }

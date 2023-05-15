@@ -22,7 +22,7 @@ def create_app(config_overrides=None):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': 2,
-        'pool_recycle': 60,
+        'pool_recycle': 30,
         'max_overflow': 5
     }
 
