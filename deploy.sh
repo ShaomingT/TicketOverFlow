@@ -7,7 +7,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "> Before begin to depoly, please make sure the following requirements are met:"
 echo -e "> Please make sure \033[1m\033[31mPython3.10\033[0m, Python library \033[1m\033[31mpsycopg2\033[0m and \033[1m\033[31mDocker\033[0m are installed on local machine, they are used to upload init data to database."
 echo ""
-read -p "Press any key to continue... " -n1 -s
+#read -p "Press any key to continue... " -n1 -s
 echo ""
 echo "Continuing..."
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -32,4 +32,7 @@ echo "API URL: $API_URL"
 # Build a file called api.txt which the URL in it
 echo "$API_URL" > ../api.txt
 cd ..
-echo "Deploying Done. Wait for minutes until everything is set up on cloud."
+# sleep 30 seconds
+echo "Sleeping for 30 seconds... wait for everything is set up on cloud"
+sleep 30
+echo "Deploying Done."
