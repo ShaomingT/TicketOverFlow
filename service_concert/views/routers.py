@@ -237,7 +237,7 @@ def update_concert(concert_id):
 
     if concert:
         concert.svg = None
-        concert.svg_seat_num = None
+        # concert.svg_seat_num = None
         db.session.commit()
 
     concert = Concert.query.filter_by(id=concert_id).first()

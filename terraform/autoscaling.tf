@@ -44,28 +44,28 @@ resource "aws_appautoscaling_policy" "ticketoverflow" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value       = 12
+    target_value       = 24
     scale_in_cooldown  = 120
-    scale_out_cooldown = 90
+    scale_out_cooldown = 120
   }
 }
 
-resource "aws_appautoscaling_policy" "connection_count" {
-  for_each = local.microservices
-
-  name               = "${each.value.name}-connection-count"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.main[each.key].resource_id
-  scalable_dimension = aws_appautoscaling_target.main[each.key].scalable_dimension
-  service_namespace  = aws_appautoscaling_target.main[each.key].service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = each.value.resource_label
-    }
-    target_value       = 200
-    scale_in_cooldown  = 240
-    scale_out_cooldown = 90
-  }
-}
+#resource "aws_appautoscaling_policy" "connection_count" {
+#  for_each = local.microservices
+#
+#  name               = "${each.value.name}-connection-count"
+#  policy_type        = "TargetTrackingScaling"
+#  resource_id        = aws_appautoscaling_target.main[each.key].resource_id
+#  scalable_dimension = aws_appautoscaling_target.main[each.key].scalable_dimension
+#  service_namespace  = aws_appautoscaling_target.main[each.key].service_namespace
+#
+#  target_tracking_scaling_policy_configuration {
+#    predefined_metric_specification {
+#      predefined_metric_type = "ALBRequestCountPerTarget"
+#      resource_label         = each.value.resource_label
+#    }
+#    target_value       = 200
+#    scale_in_cooldown  = 240
+#    scale_out_cooldown = 120
+#  }
+#}
