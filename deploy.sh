@@ -34,6 +34,6 @@ echo "API URL: $API_URL"
 echo "$API_URL" > ../api.txt
 cd ..
 # sleep 30 seconds
-echo "Sleeping for 30 seconds... wait for everything is set up on cloud"
-sleep 300
+echo "Sleeping for 60 seconds... wait for everything is set up on cloud"
+sleep 60
 echo "Deploying Done."
