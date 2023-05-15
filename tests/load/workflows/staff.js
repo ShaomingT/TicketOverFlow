@@ -8,9 +8,11 @@ const BASE_URL = __ENV.TEST_HOST;
 
 const errors = new Counter("errors");
 const seatings = new Counter("seatings");
-
+const attempted = new Counter("attempted_seatings");
 
 export function staff(data) {
+    attempted.add(1);
+
     const concertId = data.concertId;
 
     // Request a seating plan - allow 3 minutes for a successful response

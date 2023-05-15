@@ -26,7 +26,6 @@ export const options = {
             executor: "shared-iterations",
             vus: 5,
             iterations: 50,
-            maxDuration: "10m",
             exec: 'seatingStaff',
         },
     },
