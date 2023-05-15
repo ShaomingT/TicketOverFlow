@@ -23,6 +23,7 @@ echo "chdir to terraform folder"
 cd ./terraform || exit
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "> Begin deploying..."
+terraform init
 terraform apply -var-file="secret.tfvars" -auto-approve
 echo "Deploying Done."
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
