@@ -25,7 +25,7 @@ locals {
 resource "aws_appautoscaling_target" "main" {
   for_each = local.microservices
 
-  max_capacity       = 15
+  max_capacity       = 20
   min_capacity       = 1
   resource_id        = each.value.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
