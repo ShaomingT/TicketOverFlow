@@ -20,6 +20,16 @@ Before deploying,the following dependencies must be installed:
 - Docker - Used to build docker image by Terraform
 - registry.terraform.io/kreuzwerker/docker - Used to push docker image to ECR
 
+Install dependencies by apt
+```angular2html
+echo "installing dependencies..."
+apt update -y
+apt install python3 -y
+apt install python3-pip -y
+python3 -m pip install psycopg2-binary
+
+```
+
 ## Deployment
 
 1. Fill `credentials` file.
