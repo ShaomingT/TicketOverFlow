@@ -5,8 +5,27 @@ Student Number: 44660145
 
 ## Assumption
 
+I have made the assumption that 95% of requests should be processed within 2 seconds. This is a critical factor in
+maintaining a high-quality user experience. Accordingly, the selection of instance types, configurations, and scaling
+policies have been based on this assumption.
 
-I have made the assumption that 95% of requests should be processed within 2 seconds. This is a critical factor in maintaining a high-quality user experience. Accordingly, the selection of instance types, configurations, and scaling policies have been based on this assumption.
+# ⚠️ IMPORTANT NOTES
+
+The deploy.sh script has several dependencies, which are outlined in the Dependencies section.
+
+Here's an example command that can be executed on a fresh Ubuntu 22.04 EC2 instance. However, it's important to note
+that without specific knowledge of the testing environment, debugging the script can be challenging. Thus, I've included
+the necessary information here for reference.
+
+```angular2html
+## Tested and works on ec2 ubuntu22.04 instance
+echo "installing dependencies..."
+apt update -y
+apt install zip -y
+apt install python3 -y
+apt install python3-pip -y
+python3 -m pip install psycopg2-binary
+```
 
 ## Dependencies
 
@@ -21,6 +40,7 @@ Before deploying,the following dependencies must be installed:
 - registry.terraform.io/kreuzwerker/docker - Used to push docker image to ECR
 
 Install dependencies by apt
+
 ```angular2html
 echo "installing dependencies..."
 apt update -y
