@@ -3,14 +3,14 @@ Student Name: Shaoming Teng
 Student Number: 44660145
 
 ## Dependencies
-Before deploying, make sure that you have installed the following dependencies:
-- Python 3.10
+Before deploying,the following dependencies must be installed:
+- Python 3.10 - Execute script to init USER table
 - Terraform 1.4.6
-- zip
-- Psycopg2 2.9.1
+- zip - Used to zip the lambda function
+- Psycopg2 2.9.1 - Used to connect to RDS in Python
 - pipenv
-- Docker
-- registry.terraform.io/kreuzwerker/docker
+- Docker - Used to build docker image by Terraform
+- registry.terraform.io/kreuzwerker/docker - Used to push docker image to ECR
 
 ## Deployment
 1. Fill `credentials` file.
