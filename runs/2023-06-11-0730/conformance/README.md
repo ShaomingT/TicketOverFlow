@@ -1,0 +1,45 @@
+# Conformance Results
+We ran 38 conformance tests against your solution.
+You passed 0 tests and failed 38 tests.
+
+Here are the tests you failed:
+TestConcert:test_clearing_tickets
+TestConcert:test_concerts_health
+TestConcert:test_create_concert
+TestConcert:test_create_invalid_concert
+TestConcert:test_create_missing_concert
+TestConcert:test_get_concert
+TestConcert:test_list_concerts
+TestConcert:test_seating_plan
+TestConcert:test_seating_update_tickets
+TestConcert:test_update_concert_all
+TestConcert:test_update_concert_capacity
+TestConcert:test_update_concert_date
+TestConcert:test_update_concert_name
+TestConcert:test_update_concert_status
+TestConcert:test_update_concert_that_does_not_exist
+TestConcert:test_update_concert_venue
+TestTicket:test_create_ticket
+TestTicket:test_create_ticket_with_invalid_concert_id
+TestTicket:test_create_ticket_with_invalid_user_id
+TestTicket:test_get_ticket
+TestTicket:test_get_ticket_with_invalid_id
+TestTicket:test_get_tickets
+TestTicket:test_get_tickets_with_concert_id
+TestTicket:test_get_tickets_with_invalid_concert_id
+TestTicket:test_get_tickets_with_invalid_user_id
+TestTicket:test_get_tickets_with_invalid_user_id_and_concert_id
+TestTicket:test_get_tickets_with_user_id
+TestTicket:test_get_tickets_with_user_id_and_concert_id
+TestTicket:test_printing_missing_ticket
+TestTicket:test_printing_ticket
+TestTicket:test_printing_ticket_wait
+TestTicket:test_purchasing_too_many_tickets
+TestTicket:test_ticket_getting_empty_print
+TestTicket:test_ticket_health
+TestUser:test_user_get
+TestUser:test_user_get_not_found
+TestUser:test_user_health
+TestUser:test_user_list
+
+More details are available in the `report.log` file.
