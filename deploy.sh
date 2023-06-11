@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo "installing dependencies..."
+apt update -y
+apt install zip -y
+apt install python3 -y
+apt install python3-pip -y
+python3 -m pip install psycopg2-binary
+
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "|     CSSE6440 CLOUD INFRA ASSIGNMENT     |"
 echo "|          Shaoming Teng, 44660145        |"
