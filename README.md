@@ -1,7 +1,7 @@
 # TicketOverFlow
-A scalable online ticketing booking platform with a microservice architecture.
+TicketOverFlow is a scalable online ticket booking platform built with a microservice architecture.
 
-# Features
+## Features
 Endpoints List
 - Concert Service
   - GET /concert/health
@@ -22,11 +22,15 @@ Endpoints List
   - GET /users - List all registered users for the service.
   - GET /users/{id} Get information for a particular user.
 
+## Techstack
+- Backend: Python, Flask, Gunicorn, Postgres
+- Deployment: Docker, AWS ECS, AWS SQS, AWS Lambda, Terraform
+
 ## Dependencies
 
-Before deploying,the following dependencies must be installed:
+Before deploying, the following dependencies must be installed:
 
-- Python 3.10 - Execute script to init USER table
+- Python 3.10 - Execute the script to init USER table
 - Terraform 1.4.6
 - zip - Used to zip the lambda function
 - Psycopg2 2.9.1 - Used to connect to RDS in Python
