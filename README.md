@@ -53,3 +53,4 @@ python3 -m pip install psycopg2-binary
 
 1. Fill `credentials` file.
 2. Run `./deoply.sh` to deploy the infrastructure.
+   
